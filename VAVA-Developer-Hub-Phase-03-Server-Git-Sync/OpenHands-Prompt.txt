@@ -1,0 +1,114 @@
+VAVA LIVING — DEVELOPER HUB PHASE 03: SERVER GIT SYNC 2.0.0
+
+PATCH REPOSITORY:
+https://github.com/mohamedamouseo-a11y/Vava-living-website-patches
+
+PATCH FOLDER:
+VAVA-Developer-Hub-Phase-03-Server-Git-Sync/
+
+LIVE SITE:
+thevavaliving.com
+
+ACCESS ASSUMPTION:
+FTP root is the WordPress root. Do NOT assume SSH, shell or WP-CLI access is available.
+
+GOAL:
+Deploy the single Phase 03 patch that upgrades the already-installed Vava Developer Hub from 1.1.2 to 2.0.0 and adds TCRM-style Server Git Sync.
+
+IMPORTANT:
+- This is an incremental deployment to the existing active plugin.
+- Do NOT reinstall WordPress.
+- Do NOT deactivate unrelated plugins.
+- Do NOT modify the Vava theme or WordPress Core as part of deployment.
+- Do NOT push/commit/pull any website code during deployment verification unless the user explicitly asks after seeing the UI.
+- Do NOT expose, print, log or hard-code a GitHub token.
+- The bootstrap MUST be replaced last.
+
+FIRST:
+Read:
+VAVA-Developer-Hub-Phase-03-Server-Git-Sync/README.md
+
+SOURCE ROOT:
+VAVA-Developer-Hub-Phase-03-Server-Git-Sync/wp-content/plugins/vava-developer-hub/
+
+LIVE TARGET:
+/wp-content/plugins/vava-developer-hub/
+
+PRECHECK:
+1. Confirm the current live plugin exists:
+   /wp-content/plugins/vava-developer-hub/vava-developer-hub.php
+2. Confirm its current version is 1.1.2 (or report the actual version and STOP if older than 1.1.2).
+3. Back up every live file that will be replaced before uploading.
+
+FILES IN THIS PATCH:
+NEW:
+- includes/class-vava-devhub-credentials.php
+- includes/class-vava-devhub-server-git-runtime.php
+- includes/class-vava-devhub-server-git.php
+- assets/server-git.js
+- assets/server-git.css
+
+REPLACE:
+- includes/class-vava-devhub-github.php
+- vava-developer-hub.php
+
+FTP-SAFE DEPLOYMENT ORDER:
+1. Upload includes/class-vava-devhub-credentials.php
+2. Upload includes/class-vava-devhub-server-git-runtime.php
+3. Upload includes/class-vava-devhub-server-git.php
+4. Upload assets/server-git.js
+5. Upload assets/server-git.css
+6. Replace includes/class-vava-devhub-github.php
+7. Replace vava-developer-hub.php LAST
+
+After every upload, confirm the remote file exists. When tooling supports it, download each deployed file and compare it byte-for-byte to the patch source.
+
+VERIFY VERSION:
+The final live bootstrap must report:
+Version: 2.0.0
+and VAVA_DEVHUB_VERSION must equal 2.0.0.
+
+PUBLIC SAFETY CHECK:
+- thevavaliving.com must return normally.
+- /wp-admin/ must return normally.
+- If the site immediately develops a PHP fatal after the final bootstrap replacement, restore the backed-up 1.1.2 bootstrap FIRST, then restore the previous class-vava-devhub-github.php, and report FAIL.
+
+WORDPRESS ADMIN VERIFICATION IF BROWSER ACCESS IS AVAILABLE:
+1. Hard refresh Developer Hub.
+2. Existing tabs/features must still work.
+3. PASS: a new tab named `Server Git Sync` appears.
+4. Open it.
+5. PASS: Git availability, repository state, branch, HEAD, local changes and ahead/behind state render without a PHP fatal.
+6. If the WordPress root has no .git metadata, it is acceptable for the UI to show `Not connected` and offer `Connect Server Repository`.
+7. DO NOT click Connect Server Repository during deployment verification unless the user explicitly asks to connect it.
+8. PASS: GitHub write access box is visible.
+9. DO NOT enter any real token unless the user explicitly provides/authorizes it.
+10. PASS: Commit & Push, Push Pending Commits and Pull (FF-only) controls are visible.
+11. DO NOT execute Commit, Push or Pull during deployment verification.
+
+EXPECTED SECURITY:
+- PHP proc_open is required for Server Git execution. If disabled, UI must report Git unavailable instead of fataling.
+- No arbitrary shell command field exists.
+- Approved origin is only mohamedamouseo-a11y/Vava-living-website.
+- Git source scope is wp-content/themes, wp-content/plugins and wp-content/mu-plugins.
+- uploads/cache/backups/config/secrets are excluded.
+- Pull is fast-forward only.
+- GitHub token storage from UI is encrypted and token value is never returned to the browser after save.
+
+FINAL REPORT:
+Return only:
+- FTP WordPress root used
+- backup created: YES/NO
+- seven Phase 03 plugin files deployed: PASS/FAIL
+- bootstrap version: expected 2.0.0 / actual
+- existing Developer Hub loads: PASS/FAIL/NOT VERIFIED
+- Server Git Sync tab visible: PASS/FAIL/NOT VERIFIED
+- PHP proc_open available: YES/NO/NOT VERIFIED
+- git executable available: YES/NO/NOT VERIFIED
+- server repository state: CONNECTED / NOT CONNECTED / NOT VERIFIED
+- public site: PASS/FAIL/NOT VERIFIED
+- wp-admin: PASS/FAIL/NOT VERIFIED
+- rollback performed: YES/NO
+- final deployment status: PASS or FAIL
+
+Do not make unrelated changes.
