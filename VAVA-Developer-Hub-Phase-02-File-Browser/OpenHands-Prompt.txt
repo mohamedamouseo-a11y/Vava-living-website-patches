@@ -1,0 +1,99 @@
+VAVA LIVING — DEVELOPER HUB PHASE 02: SAFE GITHUB FILE BROWSER
+
+PATCH REPOSITORY:
+https://github.com/mohamedamouseo-a11y/Vava-living-website-patches
+
+PATCH FOLDER:
+VAVA-Developer-Hub-Phase-02-File-Browser/
+
+LIVE WORDPRESS SITE:
+thevavaliving.com
+
+CURRENT ACCESS LIMITATION:
+FTP access is available and the FTP root is the WordPress root.
+Do NOT assume SSH, shell, WP-CLI or server command execution is available.
+
+GOAL:
+Upgrade the already-installed Vava Developer Hub so the Controlled Push screen has a safe GitHub File Browser. The admin should select a file instead of manually typing a full path, and the browser should automatically fill the exact File path and current File content.
+
+IMPORTANT:
+- This is an incremental update to the existing active plugin.
+- DO NOT reinstall WordPress.
+- DO NOT modify WordPress Core.
+- DO NOT modify the Vava theme in this phase.
+- DO NOT push or merge anything into the production GitHub repository.
+- DO NOT add, print, expose or change VAVA_GITHUB_TOKEN.
+- Do not touch unrelated plugins or features.
+
+FIRST:
+Read:
+VAVA-Developer-Hub-Phase-02-File-Browser/README.md
+
+SOURCE FILES TO DEPLOY:
+VAVA-Developer-Hub-Phase-02-File-Browser/wp-content/plugins/vava-developer-hub/
+
+TARGET DIRECTORY ON FTP:
+/wp-content/plugins/vava-developer-hub/
+
+DEPLOYMENT SAFETY:
+Because the plugin is already active, upload supporting files FIRST and replace the bootstrap LAST.
+
+1. Confirm this current live file exists:
+/wp-content/plugins/vava-developer-hub/vava-developer-hub.php
+
+2. Download/back up the current live bootstrap to your local working directory before replacing it.
+
+3. Upload these NEW files first:
+/wp-content/plugins/vava-developer-hub/includes/class-vava-devhub-file-browser.php
+/wp-content/plugins/vava-developer-hub/assets/file-browser.js
+/wp-content/plugins/vava-developer-hub/assets/file-browser.css
+
+4. Only after all three files are confirmed on the live FTP server, replace this file LAST:
+/wp-content/plugins/vava-developer-hub/vava-developer-hub.php
+
+5. Download the four deployed files back from FTP and compare them byte-for-byte with the patch source when the FTP tooling supports this.
+
+6. The new bootstrap must report plugin version 1.1.0 and must require:
+includes/class-vava-devhub-file-browser.php
+
+7. Do NOT deactivate/reinstall the plugin merely because WP-CLI is unavailable. The existing plugin can remain active during this incremental update.
+
+8. If WordPress Admin/browser access is available, verify:
+- Developer Hub still opens.
+- Controlled Push still opens.
+- A Browse files button appears next to File path.
+- Clicking it opens GitHub File Browser.
+- For repository Vava-living-website, the root shows Vava Theme and Developer Hub Plugin.
+- Navigate into a folder.
+- Select a safe editable file such as a PHP/CSS/JS/MD file.
+- The browser closes and fills File path automatically.
+- File content is filled with the current GitHub file contents.
+- Review & Security Check can be run on that selected file.
+
+9. Do NOT click Authorize Controlled Push as part of this deployment verification unless explicitly instructed. This phase verifies browsing/selection only and must not create an unrelated GitHub write.
+
+10. Check that the public site and wp-admin still load. If any fatal error appears immediately after replacing the bootstrap, restore the backed-up bootstrap first, then report FAIL.
+
+EXPECTED SECURITY:
+- File browser actions require WordPress administrator permission and the existing Developer Hub nonce.
+- Main website browsing is limited to:
+  wp-content/themes/vava-living-theme-ar-v1
+  wp-content/plugins/vava-developer-hub
+- Existing protected paths and allowed editable file types remain enforced.
+- VAVA_GITHUB_TOKEN is not required for browsing public repositories; it is still required only for actual authenticated write/push behavior.
+
+FINAL REPORT:
+Return only:
+- FTP WordPress root used
+- backup created: YES/NO
+- four files deployed: PASS/FAIL
+- bootstrap version: expected 1.1.0 / actual
+- File Browser button visible: PASS/FAIL/NOT VERIFIED
+- folder navigation: PASS/FAIL/NOT VERIFIED
+- file auto-load path/content: PASS/FAIL/NOT VERIFIED
+- Developer Hub still loads: PASS/FAIL/NOT VERIFIED
+- public site still loads: PASS/FAIL/NOT VERIFIED
+- rollback performed: YES/NO
+- final status: PASS or FAIL
+
+Do not make unrelated changes.
