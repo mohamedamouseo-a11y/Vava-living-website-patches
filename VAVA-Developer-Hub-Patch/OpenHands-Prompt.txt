@@ -1,0 +1,47 @@
+VAVA LIVING — APPLY DEVELOPER HUB PATCH ONLY
+
+PATCH REPOSITORY:
+https://github.com/mohamedamouseo-a11y/Vava-living-website-patches
+
+PATCH FOLDER:
+VAVA-Developer-Hub-Patch/
+
+GOAL:
+Deploy the standalone Vava Developer Hub WordPress plugin to the live/server project.
+
+IMPORTANT:
+- Use ONLY the files from the patch repository folder above.
+- Do NOT merge or push anything to the production Vava-living-website main branch.
+- Do NOT modify WordPress Core.
+- Do NOT modify the active Vava theme.
+- Do NOT touch unrelated plugins or features.
+- Never commit or expose a real GitHub token.
+
+STEPS:
+1. Locate the live Vava WordPress root.
+2. Create a server-side backup if `wp-content/plugins/vava-developer-hub` already exists, then STOP and report instead of overwriting it.
+3. Run:
+   bash /PATH/TO/Vava-living-website-patches/VAVA-Developer-Hub-Patch/apply-developer-hub.sh /PATH/TO/VAVA-WORDPRESS
+4. Confirm all Developer Hub PHP files pass `php -l`.
+5. Activate plugin `vava-developer-hub` using WP-CLI if available.
+6. Confirm WordPress Admin loads normally.
+7. Confirm a `Developer Hub` menu item appears for administrators.
+8. Open Developer Hub and confirm repository/branch/commit/PR data loads.
+9. Do NOT test Controlled Push with a production change. Only confirm the UI reports whether a server-side token is configured.
+
+EXPECTED PLUGIN PATH:
+wp-content/plugins/vava-developer-hub/
+
+OPTIONAL SERVER CONFIGURATION FOR AUTHENTICATED GITHUB ACCESS:
+VAVA_GITHUB_TOKEN=<server-side token only>
+VAVA_GITHUB_OWNER=mohamedamouseo-a11y
+
+FINAL REPORT:
+Return:
+- exact WordPress root used
+- files copied
+- PHP lint results
+- plugin activation status
+- Developer Hub menu status
+- GitHub read-only/authenticated status
+- any error encountered
