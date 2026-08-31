@@ -1,0 +1,25 @@
+VAVA Developer Hub — pinned patch source
+
+Repository:
+https://github.com/mohamedamouseo-a11y/Vava-living-website
+
+Base commit:
+d9a45258df47257f41f8f5edb93ef7ec34a92822
+
+Developer Hub commit:
+c287295daeb06bbcc36882ad69f1df38eeb9cc4e
+
+Immutable compare diff:
+https://github.com/mohamedamouseo-a11y/Vava-living-website/compare/d9a45258df47257f41f8f5edb93ef7ec34a92822...c287295daeb06bbcc36882ad69f1df38eeb9cc4e.diff
+
+Original review PR:
+https://github.com/mohamedamouseo-a11y/Vava-living-website/pull/3
+
+Apply from the root of the Vava WordPress Git working tree:
+
+curl -fsSL "https://github.com/mohamedamouseo-a11y/Vava-living-website/compare/d9a45258df47257f41f8f5edb93ef7ec34a92822...c287295daeb06bbcc36882ad69f1df38eeb9cc4e.diff" -o /tmp/vava-developer-hub.patch
+git apply --check /tmp/vava-developer-hub.patch
+git apply /tmp/vava-developer-hub.patch
+
+Then activate:
+wp plugin activate vava-developer-hub
