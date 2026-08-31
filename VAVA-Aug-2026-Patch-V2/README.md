@@ -1,76 +1,92 @@
 # VAVA Living — August 2026 Patch V2
 
-Additive V2 patch for the August 2026 client review. This patch is intentionally small and must be applied **on top of the existing V1 August patch**.
+Additive V2 patch for the August 2026 client review. Apply it **on top of the existing V1 August patch**.
 
-## Safety / branch rule
+## Git safety
 
-- Production repository: `mohamedamouseo-a11y/Vava-living-website`
+- Production repo: `mohamedamouseo-a11y/Vava-living-website`
 - Existing working branch: `patches/vava-aug-2026-requirements`
-- **Never commit, push, merge, rebase, or fast-forward production `main`.**
-- Patch repository: `mohamedamouseo-a11y/Vava-living-website-patches`
-- It is acceptable for this patch folder to live on the patch repository's `main`; that is not the production repository.
+- **Never commit/push/merge/rebase/fast-forward production `main`.**
+- Patch repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+- This V2 folder is intentionally stored on the patch repo's `main`; this is not production `main`.
 
-## File added by V2
+## Files in V2
 
-`wp-content/mu-plugins/vava-aug-2026-v2.php`
+- `wp-content/mu-plugins/vava-aug-2026-v2-fixes.php`
+- `wp-content/mu-plugins/vava-aug-2026-v2-admin.js`
+- `assets/vava-logo-new.png.base64.txt`
+- `OpenHands-Prompt.txt`
+- `README.md`
 
-Keep the V1 files already installed, especially:
+Keep V1 installed, especially:
 
 - `wp-content/mu-plugins/vava-aug-2026-fixes.php`
 - root `.user.ini`
 
-## What V2 fixes
+## Implemented by V2
 
-1. **Login** — removes the fragile custom press-and-hold gate while preserving normal WordPress authentication and the existing VAVA login styling. Login responses are forced non-cacheable.
-2. **New VAVA logo** — uses the new approved symbol + VAVA Living identity from the client requirements document. The V2 logo is embedded in the MU plugin so there is no extra binary asset to deploy. It replaces legacy `assets/images/vava-logo.png` usages rendered in the DOM, including dynamically inserted admin/login branding.
-3. **Tagline** — forces `نحو حياة مزدهرة` and removes lingering `حيث تزدهر الحياة` output.
-4. **Retired glyph** — replaces remaining `❧` / equivalent HTML entities with `✦`, including dynamically inserted DOM content.
-5. **Paths image** — when the Paths hero image is changed, V2 persists `_vava_paths_hero_image_id`, synchronizes it to the homepage Paths visual `_vava_home_paths_image_id`, clears relevant caches, and adds a file revision query to reduce stale image caching.
-6. **Digital product full description** — if the live server is still on the older editor, V2 injects `الوصف الكامل للمنتج` without duplicating the field on a newer theme, saves it after the legacy sanitizer, and uses it in the product reader.
-7. **Protected PDF upload** — shows the real upload percentage through 100% for upload stage 1/2, uses a 600-second request timeout, keeps the existing async processing workflow, and adds direct Ghostscript as a third server-side converter fallback after Imagick and `pdftoppm`. Failure messages remain explicit if the host has no supported converter.
-8. **Session details layout** — empty list cards are hidden and the remaining cards expand equally to use the full container.
-9. **Booking policy** — re-applies the exact Arabic August policy supplied by the client via the V1 policy content function.
-10. **Daily consultation capacity** — keeps the V1 caps and backfills missing booking duration metadata so older bookings correctly count toward the requested daily limits: 1 comprehensive × 90 min, 2 follow-up × 30 min, 2 inquiry × 20 min, 1 exploratory × 15 min; overall 205 consultation minutes/day.
-11. **Questionnaire export** — V1 already provides UTF-8 CSV export compatible with Excel and V2 keeps it unchanged.
+1. Login page forced `no-store/no-cache` to stop stale login nonces and the refresh-first problem.
+2. Tagline forced to `نحو حياة مزدهرة`; lingering `حيث تزدهر الحياة` output is replaced.
+3. Remaining `❧` and equivalent entities are replaced with `✦`.
+4. Homepage/Paths image URLs receive an attachment revision and common caches are purged after homepage/Paths saves.
+5. Session summary cards use an equal auto-fit grid; truly empty cards are hidden so no blank hole remains.
+6. Compatibility support for older live copies that do not yet contain `الوصف الكامل للمنتج`: V2 injects a single full-description textarea and preserves posted `full_description` in the selections meta after the legacy saver runs.
+7. Protected digital PDF upload now has a V2 chunked-upload path (4 MB chunks, existing 50 MB application cap) so a large replacement PDF is not one long upload request. Upload progress is shown separately from the existing async PDF-processing stage.
+8. Existing V1 questionnaire CSV/Excel export, booking policy, and daily-capacity enforcement remain active.
 
-## Intentionally not guessed
+## New logo payload
 
-### Journey Impact questionnaire
-The exact Google Form contents could not be retrieved reliably from the available source. Do **not** invent or approximate its questions. OpenHands should only change this questionnaire if it can open the exact supplied form and reproduce the visible questions/options exactly.
+The approved new VAVA logo supplied in the August requirements is stored in this patch as Base64 text:
 
-Source form:
+`assets/vava-logo-new.png.base64.txt`
+
+During deployment decode it to:
+
+`wp-content/themes/vava-living-theme-ar-v1/assets/images/vava-logo.png`
+
+Linux example:
+
+```bash
+base64 -d VAVA-Aug-2026-Patch-V2/assets/vava-logo-new.png.base64.txt > wp-content/themes/vava-living-theme-ar-v1/assets/images/vava-logo.png
+```
+
+Create a backup of the current logo before replacing it. The decoded file is PNG.
+
+## Important source-version mismatch
+
+The current production GitHub `main` already contains newer digital-product code, including the full product description field and reader support, while the reviewed live server showed an older editor. OpenHands must compare the live/project worktree with current source before overwriting any theme file. Do not blindly replace entire theme files.
+
+## Journey Impact questionnaire — do not guess
+
+Exact form supplied by the client:
+
 `https://docs.google.com/forms/d/e/1FAIpQLSeeZNwb_t3j1W3t5PZbDoRCbKfWHtRAajJWOIkeG2JD5kmjxQ/viewform?usp=sharing&ouid=110601807575632792329`
 
-### Google Meet / Zoom
-Do not fabricate meeting URLs. Automatic unique meeting creation requires a selected provider plus authorized OAuth/API credentials. Preserve the current booking flow until those credentials/provider are supplied.
+The exact form questions were not available reliably during patch preparation. Only update Journey Impact if the exact form is accessible in the deployment environment. Match every question, order, type, option, and required/optional state exactly. Otherwise report this item BLOCKED instead of guessing.
 
-## Host prerequisite for protected PDF conversion
-At least one of the following must be available on hosting:
+## Google Meet / Zoom
 
-- Imagick with PDF/Ghostscript support
-- `pdftoppm`
-- Ghostscript binary `gs`
+Do not create fake/static links. Automatic unique meeting creation/email requires a selected provider plus valid OAuth/API credentials. If those are not already available, report BLOCKED and leave booking stable.
 
-V2 improves the fallback chain but cannot install host packages from WordPress code.
+## Protected PDF processing prerequisite
+
+Chunking fixes the upload request. The subsequent protected-page conversion still requires the host to support the converter used by the current VAVA implementation (Imagick/Ghostscript support or `pdftoppm`). If conversion fails, report the exact host error rather than hiding it.
 
 ## Validation
 
-Run at minimum:
-
 ```bash
-php -l wp-content/mu-plugins/vava-aug-2026-v2.php
+php -l wp-content/mu-plugins/vava-aug-2026-v2-fixes.php
+git diff --check
 ```
 
-Then verify on staging/live deployment target without touching production `main`:
+Then verify:
 
-- native login works without refresh or press-and-hold;
-- new logo appears in frontend, login and admin branding;
+- login works on first load without needing refresh;
+- decoded new logo appears wherever `vava-logo.png` is used;
 - tagline is `نحو حياة مزدهرة`;
 - no visible `❧` remains;
-- changing Paths hero image updates the Paths page and homepage Paths visual;
-- digital editor has exactly one full-description field per product and values persist;
-- PDF upload phase reaches 100%, then processing status is shown separately;
-- session detail cards use the full container with no empty audience gap;
-- daily caps are enforced at 205 minutes total and requested category counts;
-- questionnaire CSV opens correctly in Excel;
-- supplied booking policy is visible.
+- changing homepage/Paths images is visible after save without stale image output;
+- digital editor has exactly one full-description field and saves it;
+- replacement PDF upload progresses through the upload phase and then shows processing separately;
+- session-detail blocks fill the container with no empty gap;
+- V1 CSV export, exact booking policy, and 205-minute/category daily caps still work.
