@@ -1,0 +1,110 @@
+VAVA LIVING — DEVELOPER HUB PHASE 03.1: BACKUP EXCLUSION HOTFIX 2.0.1
+
+PATCH REPOSITORY:
+https://github.com/mohamedamouseo-a11y/Vava-living-website-patches
+
+PATCH FOLDER:
+VAVA-Developer-Hub-Phase-03-1-Backup-Exclusion-Hotfix/
+
+LIVE SITE:
+thevavaliving.com
+
+LIVE WORDPRESS ROOT:
+/public_html
+
+LIVE PLUGIN:
+/public_html/wp-content/plugins/vava-developer-hub/
+
+GOAL:
+Deploy the narrowly scoped 2.0.1 hotfix that prevents Server Git Sync from treating backup directories such as `vava-developer-hub-backup/` as normal source code.
+
+CURRENT KNOWN STATE:
+- Developer Hub 2.0.0 is already deployed and active.
+- Server Git Sync is connected to `mohamedamouseo-a11y/Vava-living-website` branch `main`.
+- A previous Server Git push accidentally tracked `/wp-content/plugins/vava-developer-hub-backup/` in GitHub.
+- The live backup directory MUST remain on the server.
+
+IMPORTANT:
+- This is an incremental hotfix over 2.0.0.
+- DO NOT reinstall WordPress.
+- DO NOT deactivate the plugin.
+- DO NOT modify the Vava theme or WordPress Core.
+- DO NOT modify GitHub credentials or token configuration.
+- DO NOT delete `/public_html/wp-content/plugins/vava-developer-hub-backup/` from the server.
+- DO NOT execute Commit & Push during deployment verification.
+- DO NOT directly edit or clean the production GitHub repository during deployment.
+
+FIRST:
+Read:
+VAVA-Developer-Hub-Phase-03-1-Backup-Exclusion-Hotfix/README.md
+
+SOURCE ROOT:
+VAVA-Developer-Hub-Phase-03-1-Backup-Exclusion-Hotfix/wp-content/plugins/vava-developer-hub/
+
+ONLY TWO LIVE FILES CHANGE:
+1. /public_html/wp-content/plugins/vava-developer-hub/includes/class-vava-devhub-server-git-runtime.php
+2. /public_html/wp-content/plugins/vava-developer-hub/vava-developer-hub.php
+
+PRECHECK:
+1. Confirm the live plugin bootstrap exists.
+2. Confirm current version is 2.0.0. If it is older than 2.0.0, STOP and report the actual version.
+3. Confirm the current runtime file exists.
+4. Back up both live files locally before replacing either one.
+5. Confirm `/public_html/wp-content/plugins/vava-developer-hub-backup/` remains present if it currently exists. Do not alter it.
+
+FTP-SAFE DEPLOYMENT ORDER:
+1. Replace `includes/class-vava-devhub-server-git-runtime.php` FIRST.
+2. Confirm upload completed.
+3. Replace `vava-developer-hub.php` LAST.
+4. Download both deployed files back and compare byte-for-byte with patch source when supported.
+5. Confirm bootstrap version is exactly `2.0.1`.
+
+EXPECTED HOTFIX BEHAVIOR:
+- Directories named `backup` or `backups` are excluded.
+- Backup-suffixed directories such as `*-backup`, `*_backup`, `*.backup`, and dated variants such as `*-backup-20260831` are excluded.
+- `wp-content/plugins/vava-developer-hub-backup/` must no longer be eligible as a normal source-code change.
+- Existing tracked backup directories are detected separately for repository cleanup.
+- On a FUTURE user-approved Commit & Push, tracked backup directories are removed from Git tracking only; live server files remain untouched.
+- The Review preview must disclose tracked backup cleanup before push authorization.
+- Staged verification may allow a backup path only as a staged Git deletion. It must reject backup additions/modifications and every other protected staged path.
+
+VERIFY WITHOUT PUSHING:
+1. Confirm public site returns normally.
+2. Confirm `/wp-admin/` returns normally.
+3. If browser/admin access is available, hard-refresh Developer Hub and open Server Git Sync.
+4. Confirm status loads without a PHP fatal.
+5. Confirm the live backup directory still exists on disk/FTP.
+6. If a file inside a `*-backup` directory has a local change, it must appear as Excluded / backup directory, not Will commit.
+7. It is acceptable if an unchanged already-tracked backup directory does not appear in ordinary working-tree status; the runtime detects it separately for cleanup during Review/Commit.
+8. DO NOT press Commit & Push as part of deployment verification.
+
+OPTIONAL SAFE REVIEW CHECK IF ADMIN ACCESS IS AVAILABLE:
+- Enter a harmless commit message and click `Review Changes` only.
+- Do NOT click `Commit & Push`.
+- PASS if the preview includes a `[Repository cleanup]` section listing `wp-content/plugins/vava-developer-hub-backup` when that directory is still tracked in Git.
+- Review is read-only; it must not remove the live backup or change GitHub.
+
+ROLLBACK:
+If a PHP fatal appears after the bootstrap update:
+1. Restore the backed-up 2.0.0 `vava-developer-hub.php` first.
+2. Restore the previous `class-vava-devhub-server-git-runtime.php`.
+3. Confirm public site and wp-admin recover.
+4. Report FAIL.
+
+FINAL REPORT:
+Return only:
+- FTP WordPress root used
+- backup of two changed files created: YES/NO
+- runtime replaced: PASS/FAIL
+- bootstrap replaced: PASS/FAIL
+- bootstrap version: expected 2.0.1 / actual
+- live developer-hub-backup directory preserved: PASS/FAIL/NOT VERIFIED
+- backup suffix exclusion active: PASS/FAIL/NOT VERIFIED
+- Review shows repository cleanup target: PASS/FAIL/NOT VERIFIED
+- Commit & Push executed during verification: MUST BE NO
+- public site: PASS/FAIL/NOT VERIFIED
+- wp-admin: PASS/FAIL/NOT VERIFIED
+- rollback performed: YES/NO
+- final deployment status: PASS or FAIL
+
+Do not make unrelated changes.
