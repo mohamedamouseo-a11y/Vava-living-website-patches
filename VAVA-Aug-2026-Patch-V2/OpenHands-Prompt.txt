@@ -11,78 +11,142 @@ VAVA-Aug-2026-Patch-V2/
 
 CRITICAL GIT RULES:
 - DO NOT modify, commit to, push to, merge into, rebase, or fast-forward production `main`.
-- Use ONLY the existing project branch: `patches/vava-aug-2026-requirements`.
-- If that branch already exists locally/remotely, use it. Do not create a duplicate branch.
-- Patch-repository `main` is only a source of patch files; it is NOT production main.
-- Before changing anything, confirm `git branch --show-current` is `patches/vava-aug-2026-requirements`.
-- At the end, push ONLY `patches/vava-aug-2026-requirements` in the production project repository.
+- Use ONLY the existing production-project branch: `patches/vava-aug-2026-requirements`.
+- If that branch exists locally/remotely, use it. Do not create a duplicate branch.
+- Patch-repository `main` is only the patch source. It is NOT production main.
+- Before changing files, confirm `git branch --show-current` is `patches/vava-aug-2026-requirements`.
+- At the end push ONLY that branch in the production project repo. DO NOT merge it.
 
-TASK:
-1. Pull/fetch the latest production project and the patch repository.
-2. Read `VAVA-Aug-2026-Patch-V2/README.md` first.
-3. Keep the existing V1 August patch active. Do NOT delete or overwrite:
+FIRST:
+1. Fetch/pull the latest production project and patch repo.
+2. Read `VAVA-Aug-2026-Patch-V2/README.md` completely.
+3. Keep V1 active. Do NOT delete/overwrite:
    - `wp-content/mu-plugins/vava-aug-2026-fixes.php`
    - root `.user.ini`
-4. Copy this V2 file preserving its exact project path:
-   - `VAVA-Aug-2026-Patch-V2/wp-content/mu-plugins/vava-aug-2026-v2.php`
-     -> `wp-content/mu-plugins/vava-aug-2026-v2.php`
-5. Do not broadly refactor the theme and do not replace unrelated files. Preserve all existing VAVA fixes, especially the current booking implementation and prior 1.22.x fixes.
+4. Back up every target file before changing it.
 
-VERIFY / FIX THESE V2 REQUIREMENTS:
-- Login works normally without requiring refresh and without the fragile press-and-hold gate. Keep native WordPress authentication and existing VAVA visual styling.
-- New approved VAVA logo (symbol above VAVA Living) is shown across frontend, login, and admin branding. The V2 MU plugin embeds the approved vector logo, so do not revert to the old wordmark.
-- `حيث تزدهر الحياة` is replaced by `نحو حياة مزدهرة` in the loader/tagline/footer wherever legacy DB/theme content still renders it.
-- No visible `❧` remains; use the VAVA-compatible replacement from the patch.
-- Paths hero image selected in dashboard must save, appear on Paths, and synchronize to the homepage Paths visual. Check both `_vava_paths_hero_image_id` and `_vava_home_paths_image_id`; clear stale caches/revisions after save.
-- Digital products: exactly one `الوصف الكامل للمنتج` / `Full product description` field must exist per product. Newer source already supports it; the V2 fallback must only help older live code and must not duplicate the field. Confirm save + reader output.
-- Protected PDF: upload phase must report real progress through 100%, then show async conversion status separately. Keep the existing 50 MB application cap. Confirm server limits from V1 `.user.ini`. Converter order should support Imagick, `pdftoppm`, then direct Ghostscript fallback. If the host lacks all supported converters, report that exact host prerequisite instead of hiding the failure.
-- Session detail pages: after the removed “لمن تقدم/مناسبة لك” content leaves a truly empty list card, hide that card and make remaining cards fill the entire container evenly. Do not hide cards that contain real content.
-- Questionnaire responses: keep the existing V1 UTF-8 CSV/Excel-compatible export and verify it includes start/midpoint/Journey Impact saved answers.
-- Daily booking capacity must be enforced for consultation bookings only:
-  * Comprehensive: max 1/day, 90 min
-  * Follow-up: max 2/day, 30 min each
-  * Inquiry: max 2/day, 20 min each
-  * Exploratory/free: max 1/day, 15 min (10–15 requested; use configured duration when present, otherwise 15)
-  * Overall consultation maximum: 205 minutes/day
-  Exclude cancelled/rejected/failed/refunded/expired and product orders as already handled by V1. V2 backfills missing duration metadata on legacy bookings so they count correctly.
-- Re-apply the exact Arabic booking/payment/refund/cancellation policy supplied in the August requirements using the V1 policy function; do not paraphrase it.
+APPLY THESE V2 FILES, PRESERVING PATHS:
+- `VAVA-Aug-2026-Patch-V2/wp-content/mu-plugins/vava-aug-2026-v2-fixes.php`
+  -> `wp-content/mu-plugins/vava-aug-2026-v2-fixes.php`
+- `VAVA-Aug-2026-Patch-V2/wp-content/mu-plugins/vava-aug-2026-v2-admin.js`
+  -> `wp-content/mu-plugins/vava-aug-2026-v2-admin.js`
+
+NEW LOGO:
+- Source payload: `VAVA-Aug-2026-Patch-V2/assets/vava-logo-new.png.base64.txt`
+- Decode it to:
+  `wp-content/themes/vava-living-theme-ar-v1/assets/images/vava-logo.png`
+- Back up the existing `vava-logo.png` first.
+- Do not edit or recreate the logo manually. Use the supplied Base64 payload exactly.
+
+SOURCE-VERSION MISMATCH — IMPORTANT:
+The reviewed live server showed older theme behavior, while current project source already contains newer fixes such as the digital product `full_description` field. Therefore:
+- Compare the current worktree/live source with current repo source before overwriting any theme file.
+- Do not blindly replace complete theme files.
+- Do not undo prior VAVA fixes or `booking-vava-safe-v4r10.php` work.
+- If the current branch already contains a newer correct implementation, keep it and use V2 only as compatibility hardening.
+
+VERIFY / FIX REQUIREMENTS:
+
+1) LOGIN
+- First page load must allow normal login flow without requiring a browser refresh due to stale cached nonce/page.
+- Keep the existing VAVA styling and WordPress authentication.
+- Do not weaken authentication or bypass credentials.
+- The V2 MU plugin supplies no-cache headers; verify they work on the actual hosting/cache layer.
+
+2) LOGO
+- Confirm decoded new `vava-logo.png` appears in frontend loader/header, login branding, and admin branding wherever that shared asset is used.
+- Clear page/CDN/object caches if needed.
+
+3) TAGLINE / FOOTER
+- `حيث تزدهر الحياة` must become `نحو حياة مزدهرة` wherever it still appears.
+- Verify loader/tagline/footer output.
+
+4) RETIRED ICON
+- No visible `❧` should remain. The V2 runtime replacement uses `✦`.
+
+5) PATHS IMAGE / HOMEPAGE IMAGE
+- Changing the relevant Paths/home visual from dashboard must save and show the new image without stale output.
+- Inspect the existing homepage meta `_vava_home_paths_image_id` and Paths image data/attachment IDs before changing logic.
+- Do NOT force-sync two different images unless the existing design/requirements clearly use the same source.
+- V2 adds attachment revisions and cache purge; verify the actual saved ID is correct and the new URL renders after save.
+
+6) DIGITAL PRODUCT FULL DESCRIPTION
+- Exactly one `الوصف الكامل للمنتج` / `Full product description` field per product.
+- Current source already supports `full_description`; do not duplicate it.
+- If live code is older, V2 JS/PHP provides compatibility field/save support.
+- Verify value persists after Save/Update.
+- Verify product detail/reader uses the full description. If current live reader is older and does not read `full_description`, bring only the minimal current-source reader logic needed; do not replace unrelated theme code.
+
+7) DIGITAL PDF REPLACEMENT / UPLOAD
+- Keep the existing 50 MB application limit.
+- V2 upload uses 4 MB chunks to avoid one long request timing out.
+- Upload progress must show the real upload stage first, then protected PDF processing/conversion as a separate stage.
+- Verify replacing an existing PDF does not leave the old record active after successful new upload.
+- Existing protected-page conversion still depends on supported host conversion (current code uses Imagick/Ghostscript support or `pdftoppm`).
+- If conversion fails because hosting lacks the converter, report the exact prerequisite/error; do not fake success.
+
+8) SESSION DETAILS EMPTY SPACE
+- When a removed/empty “لمن تقدم / مناسبة لك” block has no real content, it must not leave a blank grid column.
+- Remaining cards must fill the entire container evenly.
+- Do not hide a card containing real text/list items.
+
+9) QUESTIONNAIRE DATA EXPORT
+- Preserve V1 UTF-8 CSV / Excel-compatible export.
+- Verify start, midpoint, and Journey Impact stored answers are included where data exists.
+- Do not remove website surveys merely because Excel export was requested; export is supported by V1.
+
+10) DAILY BOOKING CAPACITY
+Verify V1 capacity enforcement remains active for consultation bookings only:
+- Comprehensive: maximum 1/day, 90 minutes.
+- Follow-up: maximum 2/day, 30 minutes each.
+- Inquiry: maximum 2/day, 20 minutes each.
+- Exploratory/free: maximum 1/day, configured 10–15 minutes; use 15 fallback if needed.
+- Overall consultation maximum: 205 minutes/day.
+- Exclude cancelled/rejected/failed/refunded/expired and digital-product orders.
+If legacy bookings are missing duration/category metadata and therefore bypass limits, derive them from the referenced service UID/current service configuration with the smallest safe change.
+
+11) POLICIES
+- Verify the exact Arabic booking/payment/refund/cancellation policy already installed by V1 is visible.
+- Do not paraphrase or rewrite the supplied policy.
 
 JOURNEY IMPACT QUESTIONNAIRE — STRICT NO-GUESS RULE:
-Exact source form:
+Exact supplied form:
 https://docs.google.com/forms/d/e/1FAIpQLSeeZNwb_t3j1W3t5PZbDoRCbKfWHtRAajJWOIkeG2JD5kmjxQ/viewform?usp=sharing&ouid=110601807575632792329
-- If you can access the form in your environment, compare every visible question, question type, option, and required/optional state with the website Journey Impact questionnaire and update the website to match EXACTLY.
-- Remove website-only questions that are absent from the form.
-- Preserve order exactly.
-- If the form cannot be accessed, DO NOT invent or approximate questions. Mark this item BLOCKED and state what access/source is needed.
+- If accessible, compare EVERY visible question, order, type, option, and required/optional state with website Journey Impact and make them identical.
+- Remove website-only questions absent from the source form.
+- If source form is not accessible, DO NOT invent/approximate. Mark BLOCKED and state that exact form contents/access are required.
 
 GOOGLE MEET / ZOOM:
-- Do not generate fake or static meeting links.
-- Only implement automatic unique meeting creation/email if a provider is explicitly selected and valid OAuth/API credentials already exist in the environment.
-- Otherwise mark as BLOCKED: requires Google Meet or Zoom provider choice + authorized credentials.
+- Do not create fake/static meeting links.
+- Implement unique meeting creation + email only if a provider is already selected and valid OAuth/API credentials exist in the environment.
+- Otherwise mark BLOCKED: provider choice + authorized credentials required.
 
 SAFETY:
 - No WordPress Core edits.
-- No broad dependency upgrades.
-- No unrelated formatting/refactors.
-- Never expose secrets in commits/logs.
+- No broad refactor.
+- No dependency upgrades.
+- No unrelated formatting changes.
+- Never commit secrets.
 - Never push production main.
 
 VALIDATION BEFORE COMMIT:
-- `php -l wp-content/mu-plugins/vava-aug-2026-v2.php`
-- Review `git diff --check` and `git diff`.
+- `php -l wp-content/mu-plugins/vava-aug-2026-v2-fixes.php`
+- Confirm decoded logo is a valid PNG (`file` or equivalent).
+- `git diff --check`
+- Review full `git diff`.
 - Confirm only intended files changed.
-- If a browser/staging environment is available, manually test the listed flows.
+- If staging/browser access exists, manually test login, logo, Paths/home image update, digital full description, PDF replace/upload, session layout, CSV export, capacity, tagline/icon, and policy.
 
 COMMIT/PUSH:
-- Commit only on `patches/vava-aug-2026-requirements`.
-- Push only that branch.
-- DO NOT merge it.
+- Commit ONLY on `patches/vava-aug-2026-requirements`.
+- Push ONLY that branch.
+- DO NOT merge.
 - DO NOT push production main.
 
 FINAL REPORT MUST INCLUDE:
-1. Current branch name.
-2. Files added/modified.
+1. Branch name.
+2. Added/modified files.
 3. Validation/test results.
-4. Each requirement marked DONE / BLOCKED with reason.
+4. Every requirement marked DONE / BLOCKED with reason.
 5. Last commit SHA.
-6. Explicit sentence: “Production main was not modified or pushed.”
+6. Exact sentence: `Production main was not modified or pushed.`
