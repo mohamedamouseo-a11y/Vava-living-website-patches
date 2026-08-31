@@ -8,29 +8,40 @@ https://github.com/mohamedamouseo-a11y/Vava-living-website-patches
 PATCH FOLDER:
 VAVA-Phase-01-Login-Fix/
 
-LIVE WORDPRESS PROJECT:
-VAVA Living / thevavaliving.com
-
-IMPORTANT WORKFLOW:
-- You are applying this patch directly on the server/live project copy.
-- DO NOT push anything to the production GitHub `main` branch.
-- DO NOT merge anything into production `main`.
-- DO NOT create unrelated Git changes.
-- Do NOT attempt to push from the server if credentials are unavailable.
-- The patch repository is the source of the patch only.
+TARGET PROJECT:
+The VAVA Living WordPress project currently connected to the live website/GitHub module.
 
 ==================================================
-PHASE GOAL
+WORKFLOW — IMPORTANT
 ==================================================
 
-Fix ONLY this issue:
+The website is now connected to GitHub and the USER will perform the Git push from inside the website/module AFTER you finish the code edits.
+
+Therefore:
+- Apply the Phase 01 changes to the CURRENT WEBSITE PROJECT WORKTREE only.
+- DO NOT run git push.
+- DO NOT merge anything.
+- DO NOT create a pull request.
+- DO NOT switch branches unless the current website workflow explicitly requires it.
+- DO NOT modify production GitHub main yourself.
+- Stop after code changes + local validation + git diff review.
+- The USER will press Push from the website after reviewing your report.
+
+Do NOT create backup files inside the tracked repository such as *.bak, *.backup, or copied theme files, because the user will push the website worktree afterward.
+If a temporary backup is needed, place it OUTSIDE the repository or use git diff/git status for recovery.
+
+==================================================
+PHASE 01 GOAL
+==================================================
+
+Fix ONLY this problem:
 
 The WordPress login page does not reliably log in on the first attempt and the user has to refresh the page first.
 
-The required final behavior is:
+Required behavior:
 - Open wp-login.php in a brand-new private/incognito session.
 - Enter valid username/password.
-- Click the normal WordPress login button once.
+- Click the normal WordPress Login button once.
 - Dashboard opens immediately.
 - NO refresh.
 - NO press-and-hold verification.
@@ -44,202 +55,165 @@ Do not bypass authentication.
 ROOT CAUSE TO REMOVE
 ==================================================
 
-The VAVA theme currently has a custom press-and-hold login guard in:
+The VAVA theme has a custom press-and-hold login guard in:
 
 wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
 wp-content/themes/vava-living-theme-ar-v1/assets/js/login-vava.js
 
 The old flow:
-- renders a `data-vava-login-hold` control,
-- creates a nonce,
-- calls `vava_login_hold_start`,
-- calls `vava_login_hold_verify`,
+- renders a data-vava-login-hold control,
+- creates a guard nonce,
+- calls vava_login_hold_start,
+- calls vava_login_hold_verify,
 - hides/disables the normal submit button,
-- requires `vava_login_hold_token`,
-- rejects the login POST through an `authenticate` filter when the token is absent/invalid.
+- requires vava_login_hold_token,
+- rejects login through an authenticate filter when the token is absent/invalid.
 
 This custom gate is RETIRED in Phase 01.
 
-Do NOT try to repair the press-and-hold flow.
+Do NOT repair the hold challenge.
 Remove it from the active login path.
 
 ==================================================
-STEP 1 — BACKUP
+STEP 1 — READ THE PATCH
 ==================================================
 
-Before editing, create server-side backups of ONLY files you will modify.
+Read all files inside:
+VAVA-Phase-01-Login-Fix/
 
-At minimum back up:
+Especially:
+- wp-content/mu-plugins/vava-phase-01-login-fix.php
+- patches/admin-brand-vava-login.patch
+- patches/htaccess-login-no-cache.txt
+- README.md
 
-wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
-.htaccess   (only if you modify it)
-
-Do not put backup files inside a public web-accessible assets folder.
-Do not modify WordPress Core.
+Before editing, inspect the CURRENT project files so you do not overwrite newer website changes.
 
 ==================================================
-STEP 2 — INSTALL PHASE 01 MU PLUGIN
+STEP 2 — INSTALL THE PHASE 01 MU PLUGIN
 ==================================================
 
-From patch repo copy:
+Copy:
 
 VAVA-Phase-01-Login-Fix/wp-content/mu-plugins/vava-phase-01-login-fix.php
 
-to live project:
+into the website project at:
 
 wp-content/mu-plugins/vava-phase-01-login-fix.php
 
-Keep V1/V2/V3 patches in place.
-Do not delete them.
+Keep all existing V1/V2/V3 MU patches.
+Do not delete or rename them.
 
-Run REAL PHP lint:
-
-php -l wp-content/mu-plugins/vava-phase-01-login-fix.php
-
-Do not report brace counting as PHP lint.
+The Phase 01 MU plugin is only a compatibility/safety layer for Login.
 
 ==================================================
-STEP 3 — PATCH THE THEME LOGIN SOURCE DIRECTLY
+STEP 3 — PATCH THE ACTIVE THEME LOGIN SOURCE
 ==================================================
 
 Read:
-
 VAVA-Phase-01-Login-Fix/patches/admin-brand-vava-login.patch
 
-Apply it to:
+Apply the SAME SEMANTIC changes to:
 
 wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
 
-If `git apply` fails because the live server file is an older/newer revision, make the SAME SEMANTIC edits manually. Do not overwrite the whole file.
+Do not blindly overwrite the whole file.
+Preserve newer unrelated code.
 
-Required final source behavior:
+Final active behavior must be:
 
-A) `vava_admin_brand_login_assets()` must still enqueue the VAVA login typography/style.
+A) vava_admin_brand_login_assets() still loads the VAVA login CSS/branding.
 
 B) It must NOT enqueue:
-
 assets/js/login-vava.js
 
-and must NOT create/localize:
-
+C) It must NOT localize/create the login guard object:
 vavaLoginGuard
-vava_login_hold nonce
 
-C) The theme must NOT register:
+D) It must NOT register the hold markup on login_form:
+vava_admin_brand_login_guard_markup
 
-add_action( 'login_form', 'vava_admin_brand_login_guard_markup' );
+E) It must NOT register the custom authenticate blocker:
+vava_admin_brand_validate_login_guard
 
-D) The theme must NOT register:
+F) Native WordPress username/password authentication remains untouched.
 
-add_filter( 'authenticate', 'vava_admin_brand_validate_login_guard', 5, 3 );
-
-The old PHP helper functions/AJAX handlers may remain defined for compatibility, but they MUST NOT be part of the active login flow.
-
-Do not remove standard WordPress authentication filters.
-
-Run REAL PHP lint:
-
-php -l wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
+The old helper functions may remain defined if removing them creates unnecessary risk, but they must have NO active registration in the login flow.
 
 ==================================================
-STEP 4 — SERVER-LEVEL LOGIN NO-CACHE
+STEP 4 — LOGIN CACHE CONTROL
 ==================================================
-
-The first-load problem can persist if the hosting/LiteSpeed layer serves an old cached wp-login.php response.
-
-If the live site uses Apache/LiteSpeed and has a WordPress-root `.htaccess` file:
 
 Read:
 VAVA-Phase-01-Login-Fix/patches/htaccess-login-no-cache.txt
 
-Append that exact marked block ONCE to the root `.htaccess`.
+If the project root contains an active .htaccess used by Apache/LiteSpeed, append the marked Phase 01 block ONCE.
 
-Do not duplicate the block if it already exists.
+Rules:
+- Do not duplicate it.
+- Do not replace WordPress rewrite rules.
+- Do not modify unrelated cache rules.
+- If .htaccess is not applicable to this project, skip it and report NOT APPLICABLE.
 
-If the server is not Apache/LiteSpeed or has no applicable `.htaccess`, skip this file and report that server-level rule was not applicable. The MU plugin still sends PHP no-cache headers.
-
-If you edit `.htaccess`, validate it cautiously before finishing. Do not replace existing WordPress rewrite rules.
-
-==================================================
-STEP 5 — PURGE CACHES
-==================================================
-
-After applying the fix, purge only relevant caches.
-
-If WP-CLI exists, run:
-
-wp cache flush
-
-Then, only when the related plugin/function exists, trigger its normal purge mechanism. Examples may include LiteSpeed Cache, WP Rocket, or W3 Total Cache.
-
-Do not delete arbitrary server directories.
-Do not delete user uploads.
-Do not wipe the database.
-
-Also clear PHP OPcache only if there is a safe supported server command and you have permission; otherwise skip it.
+The MU plugin must still send PHP no-cache/no-store headers for wp-login.php.
 
 ==================================================
-STEP 6 — SERVER-SIDE VERIFICATION
+STEP 5 — STATIC / LOCAL VALIDATION
 ==================================================
 
-Verify against the LIVE login URL, not a local mockup.
+Run, when binaries are available:
 
-1. Request the login page:
+php -l wp-content/mu-plugins/vava-phase-01-login-fix.php
+php -l wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
 
-curl -sS -D /tmp/vava-login-headers.txt -o /tmp/vava-login.html https://thevavaliving.com/wp-login.php
+git diff --check
+git status --short
+git diff -- wp-content/mu-plugins/vava-phase-01-login-fix.php wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php .htaccess
 
-2. Confirm response headers include no-cache/no-store behavior.
-The MU plugin should also add:
+If PHP is NOT installed, report that honestly. Do NOT substitute brace counting and call it PHP lint.
 
-X-VAVA-Login-Fix: phase-01
-
-3. Confirm the old login JS is absent:
-
-grep -n "login-vava.js" /tmp/vava-login.html
-
-Expected: NO MATCH.
-
-4. Confirm old hold markup is absent:
-
-grep -n "data-vava-login-hold" /tmp/vava-login.html
-
-Expected: NO MATCH.
-
-5. Confirm the normal login form still exists:
-
-grep -n 'id="loginform"' /tmp/vava-login.html
-
-Expected: MATCH.
-
-6. Confirm a normal submit input/button exists and is not server-rendered disabled/hidden.
-
-Do NOT test with or expose real credentials in shell history/logs.
-
-==================================================
-STEP 7 — CHECK FOR OTHER ACTIVE COPIES
-==================================================
-
-Because the server has historically had older code copies, search the ACTIVE WordPress project only for additional registrations of the retired guard:
+Also search the ACTIVE website project for remaining ACTIVE registrations/references:
 
 vava_admin_brand_login_guard_markup
 vava_admin_brand_validate_login_guard
 login-vava.js
 vavaLoginGuard
+vava_login_hold_token
 
-Do not change backups, vendor code, or unrelated archived project copies.
-
-If another ACTIVE plugin/theme file re-registers the same login gate, disable only that registration and report the exact file.
+Important distinction:
+- Definitions or the unused JS source file may remain.
+- Active enqueue/hook/filter/localization registrations must be removed.
 
 ==================================================
-DO NOT DO IN THIS PHASE
+STEP 6 — OPTIONAL WEBSITE CHECK BEFORE USER PUSH
 ==================================================
 
-Do NOT modify:
-- Paths image handling
+If the current website environment immediately reflects edited files, request/read wp-login.php and verify:
+
+- normal login form exists,
+- normal submit button exists,
+- login-vava.js is not loaded,
+- data-vava-login-hold is absent,
+- X-VAVA-Login-Fix: phase-01 header is present if MU plugin is active.
+
+Do NOT use or expose real login credentials.
+
+If the website does not reflect edits until the USER presses Push/Deploy, mark this check:
+PENDING USER PUSH
+
+This is expected and is NOT a failure of the code-edit phase.
+
+==================================================
+STRICT SCOPE
+==================================================
+
+DO NOT touch in Phase 01:
+- Paths images
+- Homepage images
 - Digital products
 - Full product description
-- PDF upload
-- Session card layouts
+- PDF uploads
+- Session details layouts
 - Questionnaires
 - Booking capacity
 - Policies
@@ -248,25 +222,30 @@ Do NOT modify:
 - Meet/Zoom
 - Any other VAVA requirement
 
-Phase 01 is LOGIN ONLY.
+==================================================
+DO NOT PUSH
+==================================================
+
+At the end:
+- DO NOT run git push.
+- DO NOT merge.
+- DO NOT modify another branch.
+- Leave the edited files in the website worktree ready for the USER'S GitHub module Push action.
 
 ==================================================
 FINAL REPORT
 ==================================================
 
-Return only a compact report with:
+Return a compact report containing:
 
-1. Files added/modified on the server.
-2. Real `php -l` results.
-3. Whether server-level `.htaccess` no-cache was applied or not applicable.
-4. Whether cache purge completed.
-5. Results of these live HTML/header checks:
-   - X-VAVA-Login-Fix header
-   - login-vava.js absent
-   - data-vava-login-hold absent
-   - loginform present
-6. Any additional active file that was found registering the old guard.
-7. State clearly:
-   `Production GitHub main was not modified or pushed.`
+1. Current git branch, if detectable.
+2. Exact files added/modified.
+3. php -l results, or exact reason PHP lint could not run.
+4. git diff --check result.
+5. Confirmation that the active press-and-hold registrations are removed.
+6. Whether .htaccess Phase 01 block was applied or NOT APPLICABLE.
+7. Website verification result, or PENDING USER PUSH.
+8. git status --short output summary.
+9. End with exactly:
 
-Do not claim the phase is fully PASS until the user performs the browser Incognito login test.
+No Git push was performed. Changes are ready for the user to push from the website.
