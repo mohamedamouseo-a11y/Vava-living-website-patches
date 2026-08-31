@@ -1,0 +1,99 @@
+VAVA LIVING — DEVELOPER HUB PHASE 02.1: FILE BROWSER HOTFIX
+
+PATCH REPOSITORY:
+https://github.com/mohamedamouseo-a11y/Vava-living-website-patches
+
+PATCH FOLDER:
+VAVA-Developer-Hub-Phase-02-1-File-Browser-Hotfix/
+
+LIVE WORDPRESS SITE:
+thevavaliving.com
+
+CURRENT ACCESS:
+FTP root is the WordPress root.
+Do NOT assume SSH, shell, WP-CLI, or server command execution is available.
+
+GOAL:
+Apply the small Phase 02.1 hotfix to the already-installed Vava Developer Hub.
+
+BUG BEING FIXED:
+When repository `Vava-living-website` is selected, Phase 02 shows a virtual `Developer Hub Plugin` folder even though that source does not exist on the website repository main branch. Clicking it causes GitHub `Not Found`.
+
+EXPECTED FIX:
+- With `Vava-living-website` selected, Browse files root must show `Vava Theme` only.
+- The `Developer Hub Plugin` virtual root must no longer appear under the website repository.
+- Developer Hub patch/source files are browsed by switching the repository selector to `Vava-living-website-patches`.
+- Vava Theme file browsing and auto-loading must continue working.
+
+IMPORTANT:
+- This is an incremental hotfix over version 1.1.0.
+- DO NOT reinstall WordPress.
+- DO NOT deactivate the plugin.
+- DO NOT modify WordPress Core.
+- DO NOT modify the Vava theme.
+- DO NOT modify JavaScript or CSS in this hotfix.
+- DO NOT change or expose VAVA_GITHUB_TOKEN.
+- DO NOT authorize a Controlled Push during verification.
+- DO NOT push or merge anything into the production website repository.
+
+FIRST:
+Read:
+VAVA-Developer-Hub-Phase-02-1-File-Browser-Hotfix/README.md
+
+SOURCE ROOT:
+VAVA-Developer-Hub-Phase-02-1-File-Browser-Hotfix/wp-content/plugins/vava-developer-hub/
+
+LIVE TARGET:
+/wp-content/plugins/vava-developer-hub/
+
+ONLY TWO LIVE FILES MUST CHANGE:
+1. /wp-content/plugins/vava-developer-hub/includes/class-vava-devhub-file-browser.php
+2. /wp-content/plugins/vava-developer-hub/vava-developer-hub.php
+
+FTP-SAFE DEPLOYMENT ORDER:
+1. Confirm both target files currently exist.
+2. Download/back up both current live files locally.
+3. Replace `includes/class-vava-devhub-file-browser.php` FIRST.
+4. Confirm upload completed.
+5. Replace `vava-developer-hub.php` LAST.
+6. Download both deployed files back and compare them with the patch source when FTP tooling supports it.
+7. Confirm bootstrap version is exactly `1.1.1`.
+
+VERIFY IN WORDPRESS ADMIN IF BROWSER ACCESS IS AVAILABLE:
+1. Hard-refresh Developer Hub.
+2. Open Controlled Push.
+3. Confirm Browse files button still appears.
+4. Select repository `Vava-living-website`.
+5. Open Browse files.
+6. PASS: root shows only `Vava Theme` and does NOT show `Developer Hub Plugin`.
+7. Open Vava Theme.
+8. Select a safe file such as `footer-home.php`.
+9. PASS: File path is filled automatically.
+10. PASS: File content is filled automatically from GitHub.
+11. Change repository selector to `Vava-living-website-patches`.
+12. Open Browse files.
+13. PASS: actual folders from the patches repository load normally.
+14. Do NOT click Authorize Controlled Push.
+
+SAFETY CHECK:
+- Public site must still return normally.
+- wp-admin must still load.
+- If a fatal error appears after replacement, restore both backed-up files immediately and report FAIL.
+
+FINAL REPORT:
+Return only:
+- FTP WordPress root used
+- backup created: YES/NO
+- file-browser PHP replaced: PASS/FAIL
+- bootstrap replaced: PASS/FAIL
+- bootstrap version: expected 1.1.1 / actual
+- website repo root shows Vava Theme only: PASS/FAIL/NOT VERIFIED
+- false Developer Hub root removed: PASS/FAIL/NOT VERIFIED
+- Vava Theme file auto-load path/content: PASS/FAIL/NOT VERIFIED
+- patches repository browsing: PASS/FAIL/NOT VERIFIED
+- public site: PASS/FAIL/NOT VERIFIED
+- wp-admin: PASS/FAIL/NOT VERIFIED
+- rollback performed: YES/NO
+- final status: PASS or FAIL
+
+Do not make unrelated changes.
