@@ -1,0 +1,10 @@
+--- a/wp-content/themes/vava-living-theme-ar-v1/single-vava_session.php
++++ b/wp-content/themes/vava-living-theme-ar-v1/single-vava_session.php
+@@
+-$audience = array_values( (array) ( $session['audience'] ?? array() ) );
++$audience = array_values( array_filter( (array) ( $session['audience'] ?? array() ), static function ( $item ): bool {
++	return is_array( $item ) && '' !== trim( (string) ( $item['text'] ?? '' ) );
++} ) );
+@@
+-		<article><span>♙</span><h2><?php echo esc_html( (string) ( $session['audience_title'] ?? ( $is_en ? 'Suitable for you if…' : 'مناسبة لك إذا كنت...' ) ) ); ?></h2><ul><?php foreach ( $audience as $item ) : ?><li><?php echo esc_html( (string) ( $item['text'] ?? '' ) ); ?></li><?php endforeach; ?></ul></article>
++		<?php if ( $audience ) : ?><article><span>♙</span><h2><?php echo esc_html( (string) ( $session['audience_title'] ?? ( $is_en ? 'Suitable for you if…' : 'مناسبة لك إذا كنت...' ) ) ); ?></h2><ul><?php foreach ( $audience as $item ) : ?><li><?php echo esc_html( (string) ( $item['text'] ?? '' ) ); ?></li><?php endforeach; ?></ul></article><?php endif; ?>
