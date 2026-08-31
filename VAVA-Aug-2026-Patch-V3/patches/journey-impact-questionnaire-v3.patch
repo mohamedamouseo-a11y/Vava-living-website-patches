@@ -1,0 +1,77 @@
+--- a/wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
++++ b/wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
+@@
+ 			'impact' => array(
+ 				'enabled' => 1,
+ 				'title' => array( 'ar' => 'استبيان أثر الرحلة', 'en' => 'Journey Impact Questionnaire' ),
+-				'description' => array( 'ar' => 'يظهر بعد إنهاء الخدمة أو الخدمات بالكامل لأي عميل حجز جلسة استشارية.', 'en' => 'Shown after the full service journey is completed for any consultation client.' ),
++				'description' => array( 'ar' => 'استبيان أثر الرحلة', 'en' => 'Journey Impact Questionnaire' ),
+ 				'groups' => array(
+-					'impact_assessment' => array(
+-						'label' => array( 'ar' => 'تقييم أثر الخدمة', 'en' => 'Service impact assessment' ),
++					'journey_impact' => array(
++						'label' => array( 'ar' => 'أثر الرحلة', 'en' => 'Journey Impact' ),
+ 						'fields' => array(
+-							$text( 'full_name', 'الاسم الكريم (ثنائي)', 'Full name', true ),
+-							$radio( 'journey_overall', 'كيف كانت رحلتك بشكل عام من بعد جلستنا؟', 'How has your journey been overall since our session?', $better_same ),
+-							$text( 'biggest_impact', 'ما أكثر شيء لاحظته في جسمك أو نفسيتك أو حياتك اليومية؟', 'What was the biggest impact you noticed in your body, emotions, or daily life?', true, 'textarea' ),
+-							$radio( 'symptoms_result', 'كيف صارت الأعراض التي ناقشناها في أول جلسة؟', 'How have the symptoms discussed in the first session changed?', $better_same ),
+-						),
+-					),
+-					'results' => array(
+-						'label' => array( 'ar' => 'النتائج المحققة', 'en' => 'Achieved results' ),
+-						'fields' => array(
+-							$radio( 'recommendations_level', 'إلى أي درجة قدرت على تطبيق التوصيات؟', 'To what extent did you apply the recommendations?', array(
+-								array( 'value' => 'all', 'ar' => 'كلها', 'en' => 'All' ), array( 'value' => 'most', 'ar' => 'معظمها', 'en' => 'Most' ), array( 'value' => 'some', 'ar' => 'القليل منها', 'en' => 'Some' ), array( 'value' => 'none', 'ar' => 'لم أتمكن من تطبيقها', 'en' => 'Could not apply them' ),
++							$text( 'full_name', 'الاسم الكريم (ثنائي)', 'Full name', false ),
++							$text( 'journey_stuck', 'وش أكثر شيء علقت فيه من هالرحلة؟', 'What stayed with you most from this journey?', false, 'textarea' ),
++							$radio( 'most_helpful_part', 'وش أكثر جزء من التجربة حسيت إنه أفادك؟', 'Which part of the experience helped you most?', array(
++								array( 'value' => 'consultation', 'ar' => 'الجلسة الاستشارية', 'en' => 'Consultation session' ),
++								array( 'value' => 'personal_plan', 'ar' => 'الخطة الشخصية', 'en' => 'Personal plan' ),
++								array( 'value' => 'educational_files', 'ar' => 'الملفات التعليمية', 'en' => 'Educational files' ),
++								array( 'value' => 'followup_if_any', 'ar' => 'جلسة المتابعة (إن وجدت)', 'en' => 'Follow-up session (if any)' ),
++								array( 'value' => 'whatsapp_if_any', 'ar' => 'دعم الواتساب (إن وجدت)', 'en' => 'WhatsApp support (if any)' ),
++								array( 'value' => 'other', 'ar' => 'أخرى', 'en' => 'Other' ),
+ 							) ),
+-							$text( 'easiest', 'ما أسهل شيء كان عليك؟', 'What was easiest for you?', false, 'textarea' ),
+-							$text( 'hardest', 'ما أصعب شيء كان عليك؟', 'What was hardest for you?', false, 'textarea' ),
+-							$text( 'recommendations_effect', 'هل لاحظت تغييرًا بعد تطبيق التوصيات؟ اشرح باختصار', 'Did you notice a change after applying the recommendations? Briefly explain', false, 'textarea' ),
+-						),
+-					),
+-					'lifestyle' => array(
+-						'label' => array( 'ar' => 'التغيير في نمط الحياة', 'en' => 'Lifestyle changes' ),
+-						'fields' => array(
+-							$radio( 'sleep', 'كيف كان نومك؟', 'How has your sleep been?', $better_same ),
+-							$radio( 'mood', 'كيف كان مزاجك؟', 'How has your mood been?', $better_same ),
+-							$radio( 'focus', 'كيف كان تركيزك؟', 'How has your focus been?', $better_same ),
+-							$radio( 'digestion', 'كيف كان هضمك؟', 'How has your digestion been?', $better_same ),
+-							$radio( 'energy', 'كيف كانت طاقتك؟', 'How has your energy been?', $better_same ),
+-							$radio( 'breathing_comfort', 'كيف كان تنفسك وراحتك؟', 'How have your breathing and comfort been?', $better_same, false ),
+-						),
+-					),
+-					'satisfaction' => array(
+-						'label' => array( 'ar' => 'الرضا العام والتوصيات المستقبلية', 'en' => 'Overall satisfaction and future recommendations' ),
+-						'fields' => array(
+-							$text( 'new_changes', 'هل حدث شيء جديد منذ بداية الرحلة؟', 'Has anything new happened since the journey began?', false, 'textarea' ),
+-							$text( 'future_focus', 'ما أكثر شيء ترغب في التركيز عليه مستقبلًا؟', 'What would you most like to focus on next?', true, 'textarea' ),
+-							$radio( 'recommend_service', 'هل توصي بخدمات VAVA للآخرين؟', 'Would you recommend VAVA services to others?', $yes_no ),
+-							$text( 'final_message', 'هل يوجد أي شيء ترغب في قوله أو السؤال عنه؟', 'Is there anything you would like to share or ask?', false, 'textarea' ),
++							$text( 'wanted_clearer', 'هل كان فيه شيء تمنيت يكون أوضح أو مختلف؟', 'Was there anything you wished had been clearer or different?', false, 'textarea' ),
++							$radio( 'recommend_services', 'هل ترشح الخدمات الاستشارية المتنوعة المقدمة من فافا لشخص آخر؟', 'Would you recommend VAVA consultation services to someone else?', array(
++								array( 'value' => 'definitely', 'ar' => 'أكيد', 'en' => 'Definitely' ),
++								array( 'value' => 'maybe', 'ar' => 'ممكن', 'en' => 'Maybe' ),
++								array( 'value' => 'no', 'ar' => 'لا', 'en' => 'No' ),
++								array( 'value' => 'other', 'ar' => 'أخرى', 'en' => 'Other' ),
++							), false ),
++							$radio( 'share_feedback', 'هل تسمح لي أشارك جزء من كلامك عن تجربتك (بدون اسم أو أي معلومات شخصية)؟', 'May I share part of your feedback about your experience without your name or personal information?', $yes_no, false ),
+ 						),
+ 					),
+ 				),
+@@
+ 		'impact' => array(
+-			'impact_assessment' => array( 'ar' => 'قيّم الأثر العام الذي لاحظته بعد رحلتك مع VAVA.', 'en' => 'Assess the overall impact you noticed after your VAVA journey.' ),
+-			'results' => array( 'ar' => 'ساعدنا على فهم النتائج ومدى تطبيق التوصيات.', 'en' => 'Help us understand the results and how you applied the recommendations.' ),
+-			'lifestyle' => array( 'ar' => 'قيّم التغيرات التي لاحظتها في نمط حياتك اليومي.', 'en' => 'Rate the changes you noticed in your daily lifestyle.' ),
+-			'satisfaction' => array( 'ar' => 'شاركنا تقييمك وما ترغب في التركيز عليه مستقبلًا.', 'en' => 'Share your feedback and what you would like to focus on next.' ),
++			'journey_impact' => array( 'ar' => 'شاركنا أثر رحلتك وتجربتك مع VAVA.', 'en' => 'Share the impact of your VAVA journey and experience.' ),
+ 		),
