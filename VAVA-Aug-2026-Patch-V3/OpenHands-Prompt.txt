@@ -1,0 +1,283 @@
+Apply VAVA Living August 2026 Corrective Patch V3 to the LIVE SERVER working copy.
+
+PRODUCTION CODE REPO (REFERENCE ONLY):
+https://github.com/mohamedamouseo-a11y/Vava-living-website
+
+PATCH REPO:
+https://github.com/mohamedamouseo-a11y/Vava-living-website-patches
+
+PATCH FOLDER:
+VAVA-Aug-2026-Patch-V3/
+
+IMPORTANT WORKFLOW:
+- OpenHands applies changes on the server.
+- Do NOT depend on pushing production code to GitHub for deployment.
+- DO NOT modify/push/merge/rebase production `main`.
+- DO NOT delete V1 or V2 patch files.
+- Preserve all current live fixes.
+- Back up every existing target file before editing it.
+
+FIRST:
+1. Pull/fetch the PATCH repo only as needed and read `VAVA-Aug-2026-Patch-V3/README.md` fully.
+2. Inspect the actual active WordPress web root/server files before applying anything.
+3. Confirm the active theme is `vava-living-theme-ar-v1` or identify the actual active equivalent before editing theme files.
+4. Do not blindly overwrite complete theme files from GitHub; the live server can differ. Apply minimal context-aware edits.
+
+==================================================
+A. INSTALL V3 MU FILES
+==================================================
+
+Copy:
+VAVA-Aug-2026-Patch-V3/wp-content/mu-plugins/vava-aug-2026-v3-fixes.php
+-> wp-content/mu-plugins/vava-aug-2026-v3-fixes.php
+
+Copy:
+VAVA-Aug-2026-Patch-V3/wp-content/mu-plugins/vava-aug-2026-v3-admin.js
+-> wp-content/mu-plugins/vava-aug-2026-v3-admin.js
+
+Keep these existing files intact:
+- wp-content/mu-plugins/vava-aug-2026-fixes.php
+- wp-content/mu-plugins/vava-aug-2026-v2-fixes.php
+- wp-content/mu-plugins/vava-aug-2026-v2-admin.js
+- root .user.ini
+
+==================================================
+1. LOGIN — THIS IS STILL FAILING LIVE
+==================================================
+
+Observed live failure:
+The first login attempt still does not proceed; the user has to refresh.
+
+Root cause in current reference source:
+`inc/admin-brand-vava.php` still:
+- enqueues `assets/js/login-vava.js`
+- renders `vava_admin_brand_login_guard_markup`
+- validates `vava_admin_brand_validate_login_guard` on `authenticate`
+The JS hides the native submit until the press-and-hold AJAX challenge succeeds.
+
+V3 MU plugin must be active and must:
+- remove `vava_admin_brand_login_guard_markup` from `login_form`
+- remove `vava_admin_brand_validate_login_guard` from `authenticate` priority 5
+- dequeue/deregister only the `vava-login-ui` JS handle after the theme enqueues it
+- keep VAVA login CSS/styling
+- keep native WordPress username/password authentication
+- keep no-store/no-cache login headers
+
+DO NOT bypass WordPress authentication.
+DO NOT auto-login.
+DO NOT remove password checking.
+
+LIVE TEST:
+Open `/wp-login.php` in a brand-new Incognito session and log in on the FIRST load, with no refresh and no press-and-hold step.
+
+==================================================
+2. SESSION DETAIL EMPTY GAP — STILL FAILING LIVE
+==================================================
+
+Observed live failure:
+After removing “لمن تقدم / مناسبة لك”, some session detail layouts still leave a blank/ugly column and remaining cards do not use the whole container evenly.
+
+V3 runtime fix checks actual UL/LI content rather than the card heading.
+
+Also apply this minimal source patch when the active template has the matching code:
+VAVA-Aug-2026-Patch-V3/patches/session-audience-layout-v3.patch
+
+If patch context differs, make the equivalent minimal edit:
+- filter `$audience` to real non-empty text items
+- render the audience article only if at least one real item remains
+- keep overview/outcomes untouched
+- remaining cards must fill the container equally
+
+Test several session types, including one where audience is empty and one where it has real content.
+
+==================================================
+3. PATHS IMAGE — STILL NOT SAVING/UPDATING LIVE
+==================================================
+
+Observed live failure:
+Changing the image from dashboard for the VAVA Paths section still leaves the old image on the website.
+
+Known image meta fields:
+- Homepage Paths visual: `_vava_home_paths_image_id`
+- Paths page hero: `_vava_paths_hero_image_id`
+
+V3 handles BOTH, but they remain separate fields. Do NOT force them to be the same image.
+
+Requirements:
+- changing either field must persist its selected attachment ID
+- Update/Save must keep the new ID
+- V3 immediate AJAX fallback must work on old dashboard builds
+- purge post/meta/common page caches after save
+- reload dashboard: selected image must still be the new image
+- reload frontend: new image must appear
+
+Important:
+V3 admin JS must load from the MU-plugin URL using `WPMU_PLUGIN_URL` / `/wp-content/mu-plugins/`.
+Do not use an incorrect normal `/wp-content/plugins/` URL for the MU-plugin JS.
+
+Test both dashboard save persistence and frontend display.
+
+==================================================
+4. DIGITAL PRODUCT FULL DESCRIPTION — STILL MISSING LIVE
+==================================================
+
+Observed live failure:
+Dashboard still shows only a short description, so newly added digital products cannot get a full description.
+
+Required visible field:
+`الوصف الكامل للمنتج`
+English:
+`Full product description`
+
+Rules:
+- exactly ONE full-description textarea per DIGITAL product
+- do not add it to a product if the active theme already renders it
+- V3 compatibility JS must also detect older markup by textarea NAME, not only newer data attributes
+- it must detect names under `_vava_selections_products_*[digital]...[description]`
+- derive the corresponding `[full_description]` name
+- field must be visibly displayed; do not let legacy CSS hide it
+- save -> reload -> value remains
+
+CURRENT GITHUB REFERENCE:
+Current `main` already contains proper `full_description` support in:
+- `wp-content/themes/vava-living-theme-ar-v1/inc/selections-vava.php`
+- `wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-vava.php`
+
+If the LIVE versions are older, compare against current reference commit `d9a45258df47257f41f8f5edb93ef7ec34a92822` and port ONLY the small `full_description` hunks:
+- defaults/model includes `full_description`
+- editor renders one textarea
+- sanitizer saves it
+- reader prefers `full_description` when non-empty
+
+DO NOT overwrite the whole theme files.
+DO NOT duplicate the field.
+
+LIVE TEST:
+- Open a digital product in dashboard.
+- Confirm short description + one separate full description.
+- Enter unique test text in full description.
+- Save/Update.
+- Reload editor.
+- Text must remain.
+- Open frontend product details/reader and verify the full description is used.
+
+==================================================
+5. JOURNEY IMPACT — REPLACE WITH CLIENT-SUPPLIED GOOGLE FORM CONTENT
+==================================================
+
+The client has now supplied a screenshot of the exact Google-form content. This is no longer BLOCKED.
+
+Apply:
+VAVA-Aug-2026-Patch-V3/patches/journey-impact-questionnaire-v3.patch
+
+to the ACTIVE live file equivalent of:
+wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
+
+If patch context differs, make the equivalent minimal source edit. Do NOT approximate.
+
+EXACT SIX QUESTIONS IN THIS ORDER:
+
+1) `الاسم الكريم (ثنائي)`
+Type: text
+
+2) `وش أكثر شيء علقت فيه من هالرحلة؟`
+Type: free text
+
+3) `وش أكثر جزء من التجربة حسيت إنه أفادك؟`
+Type: radio
+Options exactly:
+- الجلسة الاستشارية
+- الخطة الشخصية
+- الملفات التعليمية
+- جلسة المتابعة (إن وجدت)
+- دعم الواتساب (إن وجدت)
+- أخرى
+
+4) `هل كان فيه شيء تمنيت يكون أوضح أو مختلف؟`
+Type: free text
+
+5) `هل ترشح الخدمات الاستشارية المتنوعة المقدمة من فافا لشخص آخر؟`
+Type: radio
+Options exactly:
+- أكيد
+- ممكن
+- لا
+- أخرى
+
+6) `هل تسمح لي أشارك جزء من كلامك عن تجربتك (بدون اسم أو أي معلومات شخصية)؟`
+Type: radio
+Options exactly:
+- نعم
+- لا
+
+REMOVE the old Journey Impact groups/questions such as:
+- تقييم أثر الخدمة
+- النتائج المحققة
+- التغيير في نمط الحياة
+- الرضا العام والتوصيات المستقبلية
+- journey_overall
+- biggest_impact
+- symptoms_result
+- recommendations_level
+- sleep/mood/focus/digestion/energy impact questions
+- future_focus/final_message old Impact questions
+
+IMPORTANT TECHNICAL NOTE:
+`vava_booking_questionnaire_settings()` uses `array_replace_recursive(defaults, stored)`.
+Therefore replacing only stored post meta is NOT enough: old default groups will return.
+You MUST update the theme's Impact DEFAULT block too, then allow V3 MU migration to replace the stored Impact override.
+Do NOT change Beginning or Midpoint questionnaires except preserving prior approved fixes.
+Do NOT delete historical completed response snapshots.
+
+The supplied screenshot does not clearly prove which questions are required, so do not invent required flags. V3 source uses non-required flags until an authoritative source says otherwise.
+
+After apply:
+Dashboard Journey Impact must show exactly 6 questions and no old groups/questions.
+Frontend/customer questionnaire must show the same six questions/order/options.
+
+==================================================
+6. DO NOT REGRESS V1/V2 ITEMS
+==================================================
+
+Keep intact:
+- approved new VAVA logo
+- tagline `نحو حياة مزدهرة`
+- ❧ replacement
+- questionnaire CSV/Excel export
+- daily booking limits / 205-minute maximum
+- booking/payment/refund/cancellation policy
+- V2 chunked PDF work
+- booking-vava-safe-v4r10.php
+
+Google Meet/Zoom remains BLOCKED unless provider + authorized credentials are supplied. Do not invent meeting links.
+
+==================================================
+VALIDATION
+==================================================
+
+Run REAL syntax checks, not brace counting:
+
+php -l wp-content/mu-plugins/vava-aug-2026-v3-fixes.php
+node --check wp-content/mu-plugins/vava-aug-2026-v3-admin.js
+php -l wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
+php -l wp-content/themes/vava-living-theme-ar-v1/single-vava_session.php
+
+git diff --check
+
+Review actual diff and confirm no unrelated changes.
+
+LIVE TEST PRIORITY — ONLY THESE FIRST:
+1. Login first attempt from Incognito, no refresh.
+2. Change Homepage Paths image, save, reload dashboard + homepage.
+3. Digital product: exactly one full description, save/reload/frontend.
+4. Session with empty audience: no empty column, remaining cards equal/full width.
+5. Journey Impact: exactly 6 supplied questions, correct order/options, no old groups.
+
+FINAL REPORT:
+- exact files changed on server
+- real syntax check results
+- results of the five live tests if browser access is available
+- any remaining BLOCKED items and exact reason
+- explicitly confirm production GitHub main was not modified/pushed
+
+DO NOT PUSH OR MERGE PRODUCTION MAIN.
