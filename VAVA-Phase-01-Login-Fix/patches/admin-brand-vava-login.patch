@@ -1,0 +1,22 @@
+--- a/wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
++++ b/wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
+@@
+ function vava_admin_brand_login_assets(): void {
+ 	wp_enqueue_style( 'vava-login-typography', 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700;800&display=swap', array(), null );
+ 	wp_enqueue_style( 'vava-login-ui', get_template_directory_uri() . '/assets/css/login-vava.css', array( 'vava-login-typography' ), '1.22.34' );
+-	wp_enqueue_script( 'vava-login-ui', get_template_directory_uri() . '/assets/js/login-vava.js', array(), '1.22.33', true );
+-	wp_localize_script( 'vava-login-ui', 'vavaLoginGuard', array(
+-		'ajaxUrl'  => admin_url( 'admin-ajax.php' ),
+-		'nonce'    => wp_create_nonce( 'vava_login_hold' ),
+-		'duration' => 3,
+-		'rtl'      => is_rtl(),
+-	) );
++	/* Phase 01: keep the VAVA login branding but do not load the retired
++	 * press-and-hold gate. Native WordPress authentication is the only gate. */
+ }
+@@
+-add_action( 'login_form', 'vava_admin_brand_login_guard_markup' );
++// Phase 01: press-and-hold login guard retired.
+@@
+-add_filter( 'authenticate', 'vava_admin_brand_validate_login_guard', 5, 3 );
++// Phase 01: native WordPress username/password authentication only.
