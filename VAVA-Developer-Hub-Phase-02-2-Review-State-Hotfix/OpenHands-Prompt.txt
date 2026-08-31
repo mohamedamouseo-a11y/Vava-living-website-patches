@@ -1,0 +1,94 @@
+VAVA LIVING — DEVELOPER HUB PHASE 02.2: REVIEW STATE HOTFIX
+
+PATCH REPOSITORY:
+https://github.com/mohamedamouseo-a11y/Vava-living-website-patches
+
+PATCH FOLDER:
+VAVA-Developer-Hub-Phase-02-2-Review-State-Hotfix/
+
+LIVE WORDPRESS SITE:
+thevavaliving.com
+
+CURRENT ACCESS:
+FTP root is the WordPress root.
+Do NOT assume SSH, shell, WP-CLI, or server command execution is available.
+
+GOAL:
+Apply the small Developer Hub 1.1.2 UI-state hotfix.
+
+BUG:
+The red `Invalid file path` message can remain visible after a previous failed Review attempt even when the GitHub File Browser is open and working. This is stale UI feedback. Also, Review should not call the backend when no file/path has been selected.
+
+EXPECTED FIX:
+- Opening Browse files immediately clears any stale Review/Push error box.
+- Loading/selecting a file clears stale Review feedback.
+- Changing repository or branch clears stale Review feedback.
+- Clicking Review & Security Check with an empty path must NOT call the backend. It should show: `Select a file first using Browse files, or enter a valid file path.`
+- File rows should clearly say `Select file`.
+- Existing file browsing, loading, security policy, and controlled push backend remain unchanged.
+
+IMPORTANT:
+- This is incremental over Developer Hub 1.1.1.
+- DO NOT reinstall or deactivate the plugin.
+- DO NOT modify WordPress Core.
+- DO NOT modify the Vava theme.
+- DO NOT modify GitHub token configuration.
+- DO NOT authorize or perform any Controlled Push during verification.
+- DO NOT make unrelated changes.
+
+FIRST:
+Read:
+VAVA-Developer-Hub-Phase-02-2-Review-State-Hotfix/README.md
+
+SOURCE ROOT:
+VAVA-Developer-Hub-Phase-02-2-Review-State-Hotfix/wp-content/plugins/vava-developer-hub/
+
+LIVE TARGET:
+/wp-content/plugins/vava-developer-hub/
+
+ONLY TWO LIVE FILES MUST CHANGE:
+1. /wp-content/plugins/vava-developer-hub/assets/file-browser.js
+2. /wp-content/plugins/vava-developer-hub/vava-developer-hub.php
+
+FTP-SAFE DEPLOYMENT ORDER:
+1. Confirm both target files exist.
+2. Back up both current live files locally.
+3. Replace `assets/file-browser.js` FIRST.
+4. Confirm upload completed.
+5. Replace `vava-developer-hub.php` LAST.
+6. Download both deployed files back and compare with patch source when supported.
+7. Confirm bootstrap version is exactly `1.1.2`.
+
+VERIFY IF WORDPRESS ADMIN/BROWSER ACCESS IS AVAILABLE:
+1. Hard-refresh Developer Hub (Ctrl+F5).
+2. Open Controlled Push.
+3. Without selecting a file, if an old red `Invalid file path` box is visible, click Browse files.
+4. PASS: stale red error disappears immediately when Browse files opens.
+5. Open Vava Theme and click a safe file such as `footer-home.php`.
+6. PASS: File Browser closes and File path + File content are filled automatically.
+7. PASS: no old `Invalid file path` box remains.
+8. Clear the File path manually and click Review & Security Check.
+9. PASS: backend `Invalid file path` is NOT shown; instead the UI shows `Select a file first using Browse files, or enter a valid file path.`
+10. Do NOT click Authorize Controlled Push.
+
+SAFETY:
+- Public site must still load.
+- wp-admin must still load.
+- If a fatal error occurs after bootstrap replacement, restore both backups immediately.
+
+FINAL REPORT:
+Return only:
+- FTP WordPress root used
+- backup created: YES/NO
+- file-browser.js replaced: PASS/FAIL
+- bootstrap replaced: PASS/FAIL
+- bootstrap version: expected 1.1.2 / actual
+- stale Invalid file path clears on Browse files: PASS/FAIL/NOT VERIFIED
+- file selection auto-load path/content: PASS/FAIL/NOT VERIFIED
+- empty Review intercepted with Select a file first message: PASS/FAIL/NOT VERIFIED
+- public site: PASS/FAIL/NOT VERIFIED
+- wp-admin: PASS/FAIL/NOT VERIFIED
+- rollback performed: YES/NO
+- final status: PASS or FAIL
+
+Do not make unrelated changes.
