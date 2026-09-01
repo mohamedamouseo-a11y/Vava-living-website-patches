@@ -1,0 +1,29 @@
+# VAVA Phase 07 — Digital Products Experience & Commerce Flow
+
+Patch scope:
+- Digital product listing UX
+- Digital product detail UX
+- Owned products experience
+- Mobile responsiveness
+
+Execution notes:
+- Inspect current live implementation first.
+- Backup every modified file.
+- Do not modify PDF lifecycle.
+- Do not modify reader security.
+- Do not modify payments backend.
+- Do not modify previous completed phases.
+
+Expected inspected files:
+- inc/digital-products-vava.php
+- inc/digital-products-commerce-vava.php
+- inc/digital-product-vava.php
+- relevant digital product templates/assets
+
+Validation:
+- Product cards display correctly.
+- Product details display correctly.
+- Full description remains intact.
+- Owned products remain accessible.
+- Mobile layouts tested at 320px, 360px, 390px, 414px.
+- Previous phases remain unchanged.
