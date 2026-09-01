@@ -1,0 +1,266 @@
+VAVA LIVING — PHASE 02 ONLY
+BRANDING + GENERAL MOBILE UI
+
+PATCH REPOSITORY:
+mohamedamouseo-a11y/Vava-living-website-patches
+
+PATCH FOLDER:
+VAVA-Phase-02-Branding-UI/
+
+PRODUCTION REPOSITORY:
+mohamedamouseo-a11y/Vava-living-website
+
+EXPECTED WORKING BRANCH:
+patches/vava-aug-2026-requirements
+
+IMPORTANT:
+- PHASE 02 ONLY.
+- Do NOT run git push.
+- Do NOT merge/rebase/reset production main.
+- Do NOT modify Login or any other VAVA phase.
+- Preserve all existing Phase 01 changes.
+- Preserve unrelated newer live/project changes.
+- Do not overwrite whole theme files when a semantic edit is enough.
+- Do not create tracked *.bak/*.backup files.
+- Do not claim a live/Developer-Hub worktree unless you actually verify it.
+
+==================================================
+PHASE 02 GOAL
+==================================================
+
+Implement exactly these four items:
+
+1) Approved new VAVA logo everywhere the shared VAVA logo is used.
+2) Arabic tagline:
+   حيث تزدهر الحياة
+   ->
+   نحو حياة مزدهرة
+3) Remove visible retired glyph ❧ and its HTML entity equivalents; use ✦.
+4) Fix page-level horizontal movement on mobile without breaking desktop or intentional internal animations.
+
+DO NOT work on:
+- Login
+- Paths images
+- Digital product description
+- Digital PDF upload/replacement
+- Session details
+- Questionnaires
+- Excel export
+- Booking capacity
+- Policies
+- Meet/Zoom
+
+==================================================
+STEP 1 — INSPECT CURRENT PROJECT
+==================================================
+
+Before editing run:
+
+pwd
+git rev-parse --show-toplevel
+git remote -v
+git branch --show-current
+git status --short
+git log -5 --oneline
+
+Confirm the repository belongs to:
+mohamedamouseo-a11y/Vava-living-website
+
+If there are existing local changes, preserve them. Do not reset or clean them.
+
+Read:
+VAVA-Phase-02-Branding-UI/README.md
+VAVA-Phase-02-Branding-UI/patches/source-replacements.txt
+VAVA-Phase-02-Branding-UI/wp-content/mu-plugins/vava-phase-02-branding-ui.php
+
+==================================================
+STEP 2 — INSTALL PHASE 02 MU PLUGIN
+==================================================
+
+Copy:
+VAVA-Phase-02-Branding-UI/wp-content/mu-plugins/vava-phase-02-branding-ui.php
+
+to:
+wp-content/mu-plugins/vava-phase-02-branding-ui.php
+
+Keep all existing MU plugins including Phase 01/V1/V2/V3 files.
+Do not delete them.
+
+==================================================
+STEP 3 — REPLACE THE APPROVED VAVA LOGO
+==================================================
+
+Use ONLY the already-approved logo payload from the patch repository:
+
+VAVA-Aug-2026-Patch-V2/assets/vava-logo-new.png.base64.txt
+
+Decode it and replace ONLY:
+
+wp-content/themes/vava-living-theme-ar-v1/assets/images/vava-logo.png
+
+Example on Linux if base64 is available:
+base64 -d VAVA-Aug-2026-Patch-V2/assets/vava-logo-new.png.base64.txt > /tmp/vava-logo-phase02.png
+
+Validate the decoded file is a real PNG before replacing the current image.
+
+If `file` is available:
+file /tmp/vava-logo-phase02.png
+
+Make a temporary backup OUTSIDE the Git worktree if needed.
+Do not track a backup file.
+
+The current source uses vava-logo.png in the homepage header, internal header, shared footer, and admin branding data. Do not invent another filename.
+
+==================================================
+STEP 4 — SOURCE TAGLINE + ADMIN LOGO CACHE
+==================================================
+
+Apply the semantic edits from:
+VAVA-Phase-02-Branding-UI/patches/source-replacements.txt
+
+Specifically:
+
+A) In:
+wp-content/themes/vava-living-theme-ar-v1/header-home.php
+
+change the Arabic intro:
+حيث تزدهر الحياة
+
+to:
+نحو حياة مزدهرة
+
+Do NOT change the English intro text in this phase.
+
+B) In:
+wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
+
+cache-bust ONLY the localized admin VAVA logo URL using the current logo file modification time, while preserving all unrelated admin code.
+
+Do not reintroduce any Phase 01 Press & Hold login behavior.
+
+==================================================
+STEP 5 — REMOVE RETIRED GLYPH
+==================================================
+
+Search ACTIVE VAVA theme source for:
+❧
+&#10087;
+&#x2767;
+&#X2767;
+
+Replace visible decorative occurrences with:
+✦
+
+Scope search to active VAVA theme/source and Phase 02 files.
+Do NOT edit:
+- WordPress core
+- vendor/node_modules
+- cache directories
+- uploads
+- backups
+- generated files
+
+The MU plugin contains a frontend backstop for any old stored content that still renders the retired symbol.
+
+==================================================
+STEP 6 — MOBILE HORIZONTAL MOVEMENT
+==================================================
+
+Use the Phase 02 MU plugin's MOBILE-ONLY containment CSS.
+
+Do not add a blanket desktop `overflow-x:hidden` rule.
+Do not change desktop section widths.
+Do not remove intentional transforms/animations.
+
+At <= 782px the document itself must not pan sideways.
+
+If you identify a specific element that still makes the document wider than the viewport, fix ONLY that element with the smallest safe CSS adjustment and report it explicitly.
+
+==================================================
+STEP 7 — VALIDATION
+==================================================
+
+If PHP exists run:
+
+php -l wp-content/mu-plugins/vava-phase-02-branding-ui.php
+php -l wp-content/themes/vava-living-theme-ar-v1/header-home.php
+php -l wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
+
+If PHP does not exist report:
+PHP BINARY NOT AVAILABLE
+
+Do NOT call brace counting PHP lint.
+
+Run:
+
+git diff --check
+git status --short
+git diff --stat
+
+Search final active source for old branding:
+
+grep -RIn --exclude-dir=.git --exclude='*.bak' 'حيث تزدهر الحياة' wp-content/themes/vava-living-theme-ar-v1 wp-content/mu-plugins || true
+grep -RIn --exclude-dir=.git --exclude='*.bak' '❧\|&#10087;\|&#x2767;\|&#X2767;' wp-content/themes/vava-living-theme-ar-v1 wp-content/mu-plugins || true
+
+Expected:
+- no active source occurrence of Arabic old tagline except compatibility replacement arrays/comments if intentionally present in Phase 02 MU plugin;
+- no visible source use of retired glyph except compatibility replacement arrays/comments in the Phase 02 MU plugin;
+- approved PNG is at assets/images/vava-logo.png.
+
+If image tools are available, report PNG dimensions/type after decode.
+
+==================================================
+STEP 8 — OPTIONAL RUNTIME CHECK
+==================================================
+
+If this environment actually serves the VAVA site, check:
+
+Desktop:
+- homepage logo is the approved logo;
+- internal page logo is the approved logo;
+- footer logo is the approved logo;
+- Arabic intro says نحو حياة مزدهرة;
+- no visible ❧.
+
+Mobile viewport (e.g. 390px wide):
+- document width does not exceed viewport width;
+- no page-level left/right panning;
+- menu/header/content still work;
+- desktop behavior remains unchanged.
+
+Admin if accessible:
+- VAVA dashboard/logo uses the new logo and not a stale cached image.
+
+If runtime is not connected to the edited worktree, report:
+RUNTIME CHECK PENDING DEPLOYMENT
+
+==================================================
+STEP 9 — DO NOT PUSH
+==================================================
+
+DO NOT run git push.
+DO NOT merge into main.
+Leave the changes ready for the user's website GitHub workflow.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return:
+1. Working tree path.
+2. Current branch.
+3. Exact files added/modified.
+4. Logo decode/type verification.
+5. Tagline source result.
+6. Glyph search result.
+7. Mobile overflow change/result.
+8. php -l results or unavailable.
+9. git diff --check.
+10. git status --short.
+11. Runtime result or PENDING DEPLOYMENT.
+12. Confirm no other Phase was touched.
+
+End exactly:
+
+No Git push was performed.
+Phase 02 changes are ready for the user's website GitHub workflow.
