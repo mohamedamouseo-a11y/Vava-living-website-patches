@@ -1,0 +1,290 @@
+# VAVA Phase 04 — Digital Product Full Description ONLY
+
+Work directly on the ACTUAL LIVE VAVA Living WordPress installation:
+
+`/public_html`
+
+Live site:
+`https://thevavaliving.com`
+
+Patch repository:
+`mohamedamouseo-a11y/Vava-living-website-patches`
+
+Phase folder:
+`VAVA-Phase-04-Digital-Product-Full-Description/`
+
+Reference patch:
+`VAVA-Phase-04-Digital-Product-Full-Description/patches/phase04-full-description.patch`
+
+README:
+`VAVA-Phase-04-Digital-Product-Full-Description/README.md`
+
+## IMPORTANT EXECUTION RULE
+
+This task is Phase 04 ONLY.
+
+Do NOT apply V1/V2/V3 or any whole August patch.
+Do NOT modify GitHub from the server.
+Do NOT push, pull, merge, rebase, or commit.
+Do NOT touch Developer Hub.
+Do NOT modify any other VAVA phase.
+
+The patch file is a semantic reference. First inspect the CURRENT LIVE files because production may differ from the GitHub reference. If a hunk cannot apply byte-for-byte, implement the same narrowly scoped Phase 04 behavior against the live code instead of overwriting the entire file.
+
+Before changing any existing live file, create an exact backup.
+
+---
+
+# PHASE 04 GOAL
+
+Add a clear bilingual field to DIGITAL products only:
+
+Arabic label:
+`الوصف الكامل للمنتج`
+
+English label:
+`Full product description`
+
+The existing field:
+`الوصف المختصر / Short description`
+
+must remain unchanged and continue to be used on product cards.
+
+The new full-description field must be used in the product detail / inline-reader view.
+
+There must be ONE full-description field only per language. Do not create duplicates.
+
+---
+
+# EXPECTED LIVE FILES
+
+Inspect these first:
+
+1. `wp-content/themes/vava-living-theme-ar-v1/inc/selections-vava.php`
+2. `wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-vava.php`
+
+Only modify additional files if the live implementation proves they are absolutely required to satisfy Phase 04. If that happens, report the reason before considering the phase complete.
+
+---
+
+# REQUIREMENT 1 — DATA MODEL
+
+Add a localised product field:
+
+`full_description`
+
+It must be stored separately inside the existing Arabic and English product text structures.
+
+Keep these independent:
+
+- `description` = short description
+- `full_description` = full product description
+
+Do NOT create a separate WordPress page, post type, duplicate meta box, or second competing storage model.
+
+The field must work with the existing VAVA Selections product UID structure.
+
+---
+
+# REQUIREMENT 2 — ADMIN EDITOR
+
+Inside:
+
+VAVA Selections → Digital products
+
+show BOTH fields for every digital product:
+
+1. Short description
+2. Full product description
+
+Arabic pane:
+`الوصف الكامل للمنتج`
+
+English pane:
+`Full product description`
+
+Rules:
+
+- Existing digital products must display the field.
+- Newly added digital products must display the field.
+- Tangible products must NOT receive this Phase 04 field.
+- Do not duplicate the field if the live code already contains an implementation.
+- Preserve existing product image, price, currency, button, visibility, and protected-file controls.
+
+---
+
+# REQUIREMENT 3 — SAVE / RELOAD
+
+Update the existing local-product sanitation/save model so `full_description` saves independently for Arabic and English.
+
+The field must:
+
+- survive Update/Save;
+- survive reloading the WordPress edit screen;
+- not overwrite `description`;
+- not copy Arabic into English or English into Arabic;
+- remain attached to the same product UID when products are reordered.
+
+Use safe WordPress sanitation appropriate for a multiline text description.
+
+---
+
+# REQUIREMENT 4 — EXISTING PRODUCTS
+
+Do not invent missing marketing copy.
+
+For canonical VAVA digital products that already have a detailed catalogue `description`, it is acceptable and preferred to expose that existing detail text as the initial full-description fallback/value.
+
+If an old/custom product has no historical full description source, show an empty full-description field rather than fabricating content.
+
+The existing short description must remain untouched.
+
+---
+
+# REQUIREMENT 5 — FRONTEND BEHAVIOR
+
+Product listing/card:
+
+- MUST continue to render the existing short `description`.
+
+Product detail / inline reader:
+
+- MUST render `full_description` when it has a value.
+- If `full_description` is empty, safely fall back to the existing canonical detail description.
+- If no canonical detail exists, fall back to the existing short description.
+
+Do not change unrelated product detail sections such as:
+
+- category
+- question
+- inside list
+- ideal-for list
+- pages
+- price
+- purchase action
+- cover image
+- rights/disclaimer
+
+---
+
+# BACKUP RULE
+
+Before modifying each live file:
+
+1. Download/copy the exact current original.
+2. Store a timestamped Phase 04 backup.
+3. Record the backup path in the final report.
+
+Do not place backup copies where they will be loaded by WordPress PHP includes.
+
+---
+
+# STRICTLY OUT OF SCOPE
+
+Do NOT modify:
+
+- Phase 01 Login
+- Phase 02 logo/tagline/frontend fixes
+- Phase 03 Paths images or cache busting
+- protected PDF upload
+- PDF processing/progress
+- product download permissions
+- payment flow
+- manual payment approval
+- questionnaires
+- Journey Impact Survey
+- sessions
+- booking limits
+- booking policies
+- Google Meet / Zoom
+- Developer Hub
+- GitHub
+- WordPress Core
+
+Do not refactor unrelated VAVA code.
+
+---
+
+# VALIDATION
+
+Run PHP syntax checks on every modified PHP file if the PHP CLI is available.
+
+Also verify no duplicate function names or PHP fatal errors are introduced.
+
+## TEST A — Existing Digital Product / Arabic
+
+1. Open an existing digital product in the VAVA Selections editor.
+2. Confirm both:
+   - Short description
+   - `الوصف الكامل للمنتج`
+3. Enter clearly different values in both fields.
+4. Save/Update.
+5. Reload admin.
+
+PASS if both values remain different and correctly saved.
+
+## TEST B — Existing Digital Product / English
+
+Switch to English and repeat using:
+
+- Short description
+- Full product description
+
+PASS if English values persist independently from Arabic.
+
+## TEST C — Frontend
+
+Open the VAVA Selections frontend.
+
+PASS if:
+
+- product card displays the SHORT description;
+- View Details / inline product reader displays the FULL description.
+
+The two test strings must visibly differ so this is unambiguous.
+
+## TEST D — New Digital Product
+
+1. Add a new DIGITAL product.
+2. Confirm only one Full product description field appears per language.
+3. Enter title + short description + full description.
+4. Save.
+5. Reload editor.
+6. Open frontend card and product details.
+
+PASS if:
+
+- short and full values persist;
+- card uses short;
+- details use full.
+
+## TEST E — Regression
+
+Confirm:
+
+- existing digital product price/image/visibility still work;
+- protected-file controls still render normally;
+- tangible products were not changed;
+- no PHP/frontend errors appear.
+
+---
+
+# REQUIRED FINAL REPORT
+
+Report only:
+
+1. Exact live root used.
+2. Exact files modified.
+3. Backup paths/files created.
+4. Existing storage keys/arrays used.
+5. Exact implementation of `full_description`.
+6. Whether canonical old products were prefilled from existing catalogue detail text.
+7. Arabic save/reload test result.
+8. English save/reload test result.
+9. Existing product frontend card/detail test result.
+10. New product test result.
+11. Duplicate-field check result.
+12. PHP syntax/error result.
+13. Explicit confirmation that no Phase 01/02/03, PDF processing, bookings, questionnaires, Developer Hub, GitHub, or WordPress Core changes were made.
+
+Do not mark Phase 04 complete unless BOTH an existing digital product and a newly created digital product pass save/reload and card-vs-detail verification.
