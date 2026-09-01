@@ -1,0 +1,20 @@
+# VAVA Phase 09 — Performance Optimization Patch
+
+Scope: Frontend performance optimization only.
+
+Goals:
+- Audit current loading performance.
+- Optimize digital product assets loading.
+- Improve CSS/JS loading strategy.
+- Reduce unnecessary frontend overhead.
+- Preserve all existing functionality and security.
+
+Out of scope:
+- PDF system.
+- Reader security.
+- Payment logic.
+- Booking.
+- Sessions.
+- Previous phases.
+
+Implementation must be based on live inspection before modifications.
