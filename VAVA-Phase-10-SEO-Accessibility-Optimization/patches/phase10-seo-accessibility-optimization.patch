@@ -1,0 +1,15 @@
+# VAVA Phase 10 — SEO & Accessibility Optimization Patch
+
+Scope: SEO improvements, semantic markup review, accessibility improvements only.
+
+Do not modify:
+- PDF system
+- Reader security
+- Payments
+- Checkout logic
+- Booking
+- Sessions
+- Questionnaires
+- Previous phases 01-09
+
+Implementation should inspect the live theme first, create backups, then apply only required frontend/template improvements.
