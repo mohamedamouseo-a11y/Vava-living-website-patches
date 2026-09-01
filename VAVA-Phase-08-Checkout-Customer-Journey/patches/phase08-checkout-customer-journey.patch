@@ -1,0 +1,27 @@
+# VAVA Phase 08 — Checkout Customer Journey UX
+
+Scope:
+- Digital product checkout UX improvements only.
+- Post purchase journey improvements.
+- Order status messaging improvements.
+- Mobile checkout UX.
+
+Do not modify:
+- Payment processing logic.
+- Gateway integrations.
+- PDF lifecycle.
+- Reader security.
+- HMAC access.
+- Watermarking.
+- Previous phases.
+
+Expected review areas:
+- digital-products-commerce-vava.php
+- digital-product-vava.php
+- digital-product-checkout.js
+- related checkout CSS assets
+
+Execution rules:
+- Backup before changes.
+- Modify only required files.
+- Validate checkout, success flow, and mobile experience.
