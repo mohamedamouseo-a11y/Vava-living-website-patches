@@ -1,0 +1,15 @@
+# VAVA Phase 06 — Digital Reader UX Improvements
+
+Semantic patch reference only.
+
+Expected areas:
+- digital-library-viewer-vava.php
+- reader CSS
+- reader JS
+
+Changes:
+- Improve reader UX only.
+- Preserve PDF security architecture.
+- Preserve HMAC access.
+- Preserve watermarking.
+- Preserve existing product and payment flows.
