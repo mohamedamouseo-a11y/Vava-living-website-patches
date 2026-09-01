@@ -1,0 +1,57 @@
+# VAVA Phase 06 — Digital Reader UX Improvements ONLY
+
+Work directly on the actual live VAVA Living WordPress installation:
+
+`/public_html`
+
+Live:
+`https://thevavaliving.com`
+
+## Scope
+Improve ONLY the Digital Product Reader frontend experience.
+
+Do not modify:
+- Phase 01 Login
+- Phase 02 Branding
+- Phase 03 Paths
+- Phase 04 Full Description
+- Phase 05 PDF storage, processing, security
+- Payments
+- Booking
+- Sessions
+- Questionnaires
+- Developer Hub
+- GitHub
+- WordPress Core
+
+## Safety
+Before any modification:
+1. Inspect current live implementation.
+2. Create exact backups.
+3. Modify only required files.
+
+## Inspect
+Start with:
+- wp-content/themes/vava-living-theme-ar-v1/inc/digital-library-viewer-vava.php
+- Actual reader CSS files
+- Actual reader JS files
+
+## Goals
+Improve:
+- Reader header/product context
+- Page navigation UX
+- Loading states
+- Error messages
+- Zoom/fullscreen controls
+- Mobile responsiveness at 320/360/390/414px
+
+Preserve:
+- HMAC URLs
+- Access checks
+- Watermarking
+- Direct PDF blocking
+
+## Validation
+Test desktop and mobile reader.
+Confirm no security regression.
+Report modified files, backups, changes, and verification results.
