@@ -1,0 +1,61 @@
+VAVA PHASE 02 — SOURCE REPLACEMENTS
+
+Apply semantically to the CURRENT VAVA theme. Do not overwrite whole files.
+
+1) wp-content/themes/vava-living-theme-ar-v1/header-home.php
+
+Current Arabic intro label:
+'intro'         => 'حيث تزدهر الحياة',
+
+Replace with:
+'intro'         => 'نحو حياة مزدهرة',
+
+Keep the English intro unchanged unless the user separately requests an English copy change.
+
+2) wp-content/themes/vava-living-theme-ar-v1/inc/admin-brand-vava.php
+
+The admin dashboard currently localizes the logo with a stable URL:
+'logo' => get_template_directory_uri() . '/assets/images/vava-logo.png'
+
+Change ONLY the logo value to a cache-busted URL using the current file modification time, e.g. calculate before wp_localize_script:
+$logo_file = get_template_directory() . '/assets/images/vava-logo.png';
+$logo_ver  = is_file( $logo_file ) ? (int) filemtime( $logo_file ) : ( defined( 'VAVA_THEME_VERSION' ) ? VAVA_THEME_VERSION : '1' );
+$logo_url  = add_query_arg( 'vava_brand', $logo_ver, get_template_directory_uri() . '/assets/images/vava-logo.png' );
+
+Then use:
+'logo' => $logo_url
+
+Preserve all unrelated dashboard code.
+
+3) Retired glyph cleanup
+
+Search ACTIVE VAVA theme source only for:
+❧
+&#10087;
+&#x2767;
+&#X2767;
+
+Replace visible decorative occurrences with:
+✦
+
+Do NOT edit WordPress core, vendor dependencies, backups, generated caches, or database dumps.
+The Phase 02 MU plugin also provides a frontend output backstop for legacy stored content.
+
+4) Approved logo
+
+Use the already-approved logo payload stored in the patch repository at:
+VAVA-Aug-2026-Patch-V2/assets/vava-logo-new.png.base64.txt
+
+Decode it and replace ONLY:
+wp-content/themes/vava-living-theme-ar-v1/assets/images/vava-logo.png
+
+Create any temporary backup OUTSIDE the Git worktree. Do not track *.bak files.
+
+The same vava-logo.png is used by the homepage header, internal-page header and shared footer, and the admin brand localizes that same image path.
+
+5) Mobile overflow
+
+Install:
+VAVA-Phase-02-Branding-UI/wp-content/mu-plugins/vava-phase-02-branding-ui.php
+
+Do not add broad desktop overflow rules to theme stylesheets. The MU patch contains a mobile-only containment rule.
