@@ -1,0 +1,100 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/selections-vava.php b/wp-content/themes/vava-living-theme-ar-v1/inc/selections-vava.php
+--- a/wp-content/themes/vava-living-theme-ar-v1/inc/selections-vava.php
++++ b/wp-content/themes/vava-living-theme-ar-v1/inc/selections-vava.php
+@@
+ 			array(
+ 				'uid'         => $uid,
+ 				'title'       => '',
+ 				'description' => '',
++				'full_description' => '',
+ 				'currency'    => '',
+ 				'button_text' => '',
+ 			),
+ 			$item,
+ 			$localized,
+@@
+-		$result[]  = array_merge(
++		$merged = array_merge(
+ 			array(
+ 				'uid'         => $uid,
+ 				'title'       => '',
+ 				'description' => '',
++				'full_description' => '',
+ 				'currency'    => '',
+ 				'button_text' => '',
+ 			),
+ 			$item,
+ 			$localized,
+ 			array(
+ 				'uid'   => $uid,
+ 				'group' => $group,
+ 			)
+ 		);
++		if ( 'digital' === $group && '' === trim( (string) ( $merged['full_description'] ?? '' ) ) && function_exists( 'vava_digital_product_data' ) ) {
++			$catalogue_detail = vava_digital_product_data( $uid, $lang );
++			if ( ! empty( $catalogue_detail['description'] ) ) {
++				$merged['full_description'] = (string) $catalogue_detail['description'];
++			}
++		}
++		$result[] = $merged;
+ 	}
+ 	return $result;
+ }
+@@
+ 		'description'     => array( 'ar' => 'الوصف المختصر', 'en' => 'Short description' ),
++		'full_description' => array( 'ar' => 'الوصف الكامل للمنتج', 'en' => 'Full product description' ),
+ 		'button_text'     => array( 'ar' => 'نص الزر', 'en' => 'Button text' ),
+@@
+ 			<div class="vava-repeater-field vava-repeater-field-wide vava-selections-product-field"><label><span><?php echo esc_html( vava_selections_admin_text( 'description', $lang ) ); ?></span><textarea data-product-local-field="description" name="<?php echo esc_attr( $name_base . '[description]' ); ?>" rows="4"><?php echo esc_textarea( (string) ( $product['description'] ?? '' ) ); ?></textarea></label></div>
++			<?php if ( 'digital' === $group ) : ?><div class="vava-repeater-field vava-repeater-field-wide vava-selections-product-field vava-selections-product-full-description"><label><span><?php echo esc_html( vava_selections_admin_text( 'full_description', $lang ) ); ?></span><textarea data-product-local-field="full_description" name="<?php echo esc_attr( $name_base . '[full_description]' ); ?>" rows="8"><?php echo esc_textarea( (string) ( $product['full_description'] ?? '' ) ); ?></textarea></label></div><?php endif; ?>
+@@
+-		<template data-product-template><?php vava_selections_render_product_item( $post_id, $group, $lang, array( 'uid' => '__UID__', 'title' => '', 'description' => '', 'currency' => 'en' === $lang ? 'SAR' : 'ر.س', 'button_text' => 'en' === $lang ? 'View Details' : 'عرض التفاصيل', 'price' => '', 'image_id' => 0, 'fallback_asset' => '', 'enabled' => 1 ), 0, true ); ?></template>
++		<template data-product-template><?php vava_selections_render_product_item( $post_id, $group, $lang, array( 'uid' => '__UID__', 'title' => '', 'description' => '', 'full_description' => '', 'currency' => 'en' === $lang ? 'SAR' : 'ر.س', 'button_text' => 'en' === $lang ? 'View Details' : 'عرض التفاصيل', 'price' => '', 'image_id' => 0, 'fallback_asset' => '', 'enabled' => 1 ), 0, true ); ?></template>
+@@
+ function vava_selections_sanitize_local_product( array $item, string $uid ): array {
+ 	return array(
+ 		'uid'         => $uid,
+ 		'title'       => sanitize_text_field( (string) ( $item['title'] ?? '' ) ),
+ 		'description' => sanitize_textarea_field( (string) ( $item['description'] ?? '' ) ),
++		'full_description' => sanitize_textarea_field( (string) ( $item['full_description'] ?? '' ) ),
+ 		'currency'    => sanitize_text_field( (string) ( $item['currency'] ?? '' ) ),
+ 		'button_text' => sanitize_text_field( (string) ( $item['button_text'] ?? '' ) ),
+ 	);
+ }
+
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-vava.php b/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-vava.php
+--- a/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-vava.php
++++ b/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-vava.php
+@@
+ 		$rows[] = array(
+ 			'uid'         => $uid,
+ 			'title'       => (string) ( $local['title'] ?? '' ),
+ 			'description' => (string) ( $local['card_description'] ?? $local['description'] ?? '' ),
++			'full_description' => (string) ( $local['description'] ?? '' ),
+ 			'currency'    => 'en' === $lang ? 'SAR' : 'ر.س',
+ 			'button_text' => 'en' === $lang ? 'View Details' : 'عرض التفاصيل',
+ 		);
+@@
+ 	if ( ! $data ) {
++		$full_description = trim( (string) ( $card['full_description'] ?? '' ) );
+ 		$data = array(
+ 			'uid'          => $uid,
+ 			'title'        => (string) ( $card['title'] ?? '' ),
+ 			'category'     => '',
+ 			'question'     => '',
+-			'description'  => (string) ( $card['description'] ?? '' ),
++			'description'  => '' !== $full_description ? $full_description : (string) ( $card['description'] ?? '' ),
+ 			'inside'       => array(),
+ 			'ideal'        => array(),
+ 			'pages'        => '',
+@@
+ 	if ( '' !== trim( (string) ( $card['title'] ?? '' ) ) ) {
+ 		$data['title'] = (string) $card['title'];
+ 	}
++	$full_description = trim( (string) ( $card['full_description'] ?? '' ) );
++	if ( '' !== $full_description ) {
++		$data['description'] = $full_description;
++	} elseif ( '' === trim( (string) ( $data['description'] ?? '' ) ) ) {
++		$data['description'] = (string) ( $card['description'] ?? '' );
++	}
+ 	$data['group']      = (string) ( $card['group'] ?? $data['group'] ?? 'digital' );
