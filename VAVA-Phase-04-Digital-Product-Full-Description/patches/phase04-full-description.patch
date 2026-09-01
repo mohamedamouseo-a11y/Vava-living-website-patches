@@ -2,17 +2,6 @@ diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/selections-vava.php b
 --- a/wp-content/themes/vava-living-theme-ar-v1/inc/selections-vava.php
 +++ b/wp-content/themes/vava-living-theme-ar-v1/inc/selections-vava.php
 @@
- 			array(
- 				'uid'         => $uid,
- 				'title'       => '',
- 				'description' => '',
-+				'full_description' => '',
- 				'currency'    => '',
- 				'button_text' => '',
- 			),
- 			$item,
- 			$localized,
-@@
 -		$result[]  = array_merge(
 +		$merged = array_merge(
  			array(
