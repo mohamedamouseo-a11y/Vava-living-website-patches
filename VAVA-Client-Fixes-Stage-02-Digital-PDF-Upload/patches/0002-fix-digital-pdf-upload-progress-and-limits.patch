@@ -1,0 +1,141 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php b/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php
+--- a/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php
++++ b/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php
+@@
+ function vava_digital_products_format_bytes( int $bytes ): string {
+ 	if ( $bytes <= 0 ) { return '—'; }
+ 	$units = array( 'B', 'KB', 'MB', 'GB' );
+ 	$power = min( count( $units ) - 1, (int) floor( log( $bytes, 1024 ) ) );
+ 	return number_format_i18n( $bytes / pow( 1024, $power ), $power ? 1 : 0 ) . ' ' . $units[ $power ];
+ }
++
++/** Effective protected-PDF upload ceiling: product cap constrained by PHP/WordPress. */
++function vava_digital_products_upload_limit_bytes(): int {
++	$hard_limit = 50 * MB_IN_BYTES;
++	$wp_limit   = function_exists( 'wp_max_upload_size' ) ? (int) wp_max_upload_size() : $hard_limit;
++	if ( $wp_limit <= 0 ) { $wp_limit = $hard_limit; }
++	return max( 1, min( $hard_limit, $wp_limit ) );
++}
++
++/** Human-readable PHP upload failure instead of the generic upload error. */
++function vava_digital_products_upload_error_message( int $error ): string {
++	$messages = array(
++		UPLOAD_ERR_INI_SIZE   => 'حجم الملف يتجاوز الحد المسموح به في إعدادات الخادم.',
++		UPLOAD_ERR_FORM_SIZE  => 'حجم الملف يتجاوز الحد المسموح به للنموذج.',
++		UPLOAD_ERR_PARTIAL    => 'تم رفع جزء من الملف فقط. يرجى إعادة المحاولة.',
++		UPLOAD_ERR_NO_FILE    => 'لم يتم استلام ملف PDF.',
++		UPLOAD_ERR_NO_TMP_DIR => 'مجلد الملفات المؤقتة غير متاح على الخادم.',
++		UPLOAD_ERR_CANT_WRITE => 'تعذر كتابة الملف على التخزين في الخادم.',
++		UPLOAD_ERR_EXTENSION  => 'أوقف الخادم رفع الملف قبل اكتماله.',
++	);
++	return $messages[ $error ] ?? 'تعذر رفع الملف.';
++}
+@@
+ function vava_digital_products_store_uploaded_pdf( int $post_id, string $uid, array $file ) {
+ 	$uid = sanitize_key( $uid );
+ 	if ( ! $post_id || '' === $uid ) { return new WP_Error( 'invalid_product', 'Invalid product.' ); }
+ 	$error = absint( $file['error'] ?? UPLOAD_ERR_NO_FILE );
+-	if ( UPLOAD_ERR_OK !== $error ) { return new WP_Error( 'upload_error', 'تعذر رفع الملف.' ); }
++	if ( UPLOAD_ERR_OK !== $error ) { return new WP_Error( 'upload_error', vava_digital_products_upload_error_message( $error ) ); }
+ 	$tmp = (string) ( $file['tmp_name'] ?? '' );
+ 	$name = sanitize_file_name( (string) ( $file['name'] ?? '' ) );
+ 	$size = absint( $file['size'] ?? 0 );
+-	if ( ! is_uploaded_file( $tmp ) || $size <= 0 || $size > 50 * MB_IN_BYTES ) { return new WP_Error( 'file_size', 'ملف PDF غير صالح أو يتجاوز 50 ميجابايت.' ); }
++	$max_upload = vava_digital_products_upload_limit_bytes();
++	if ( ! is_uploaded_file( $tmp ) || $size <= 0 ) { return new WP_Error( 'file_size', 'ملف PDF غير صالح أو فارغ.' ); }
++	if ( $size > $max_upload ) {
++		return new WP_Error( 'file_size', sprintf( 'حجم ملف PDF يتجاوز الحد المسموح (%s).', size_format( $max_upload, 1 ) ) );
++	}
+ 	$checked = wp_check_filetype_and_ext( $tmp, $name, array( 'pdf' => 'application/pdf' ) );
+@@
+ function vava_digital_products_admin_assets( string $hook ): void {
+@@
+-	wp_localize_script( 'vava-admin-digital-products', 'VAVA_DIGITAL_PRODUCTS_ADMIN', array(
++	$max_upload = vava_digital_products_upload_limit_bytes();
++	wp_localize_script( 'vava-admin-digital-products', 'VAVA_DIGITAL_PRODUCTS_ADMIN', array(
+ 		'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+ 		'postId'  => $post_id,
+ 		'nonce'   => wp_create_nonce( 'vava_digital_product_admin_' . $post_id ),
++		'maxUploadBytes' => $max_upload,
++		'maxUploadLabel' => size_format( $max_upload, 1 ),
+ 		'labels'  => array(
+ 			'uploading' => 'جارٍ رفع ملف PDF…',
+ 			'processing'=> 'جارٍ تجهيز صفحات المشاهدة المحمية…',
+ 			'ready'     => 'الملف جاهز للمشاهدة المحمية.',
+ 			'failed'    => 'فشل تجهيز الملف.',
+ 			'deleted'   => 'تم حذف الملف المحمي.',
+ 		),
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js b/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js
+--- a/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js
++++ b/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js
+@@
+   function update(field, percent, label, meta, state) {
+@@
+   }
++
++  function maxUploadBytes() {
++    var configured = Number(config.maxUploadBytes || 0);
++    return configured > 0 ? configured : 50 * 1024 * 1024;
++  }
++
++  function processingPercent(percent) {
++    percent = Math.max(0, Math.min(100, Number(percent || 0)));
++    return 90 + percent * 0.1;
++  }
++
++  function requestErrorMessage(xhr, response) {
++    if (response && response.data && response.data.message) return response.data.message;
++    if (xhr.status === 413) {
++      return document.documentElement.lang === 'en'
++        ? 'The PDF is larger than the server upload limit.'
++        : 'حجم ملف PDF أكبر من الحد المسموح به على الخادم.';
++    }
++    if (xhr.status === 0) {
++      return document.documentElement.lang === 'en'
++        ? 'The upload connection was interrupted. Please try again.'
++        : 'انقطع الاتصال أثناء رفع الملف. يرجى إعادة المحاولة.';
++    }
++    if (xhr.status >= 500) {
++      return document.documentElement.lang === 'en'
++        ? 'The server could not complete the upload. Please try again.'
++        : 'تعذر على الخادم إكمال رفع الملف. يرجى إعادة المحاولة.';
++    }
++    return document.documentElement.lang === 'en' ? 'Unable to complete the operation.' : 'تعذر تنفيذ العملية.';
++  }
+@@
+-        if (xhr.status >= 200 && xhr.status < 300 && response && response.success) resolve(response.data || {});
+-        else reject(new Error(response && response.data && response.data.message ? response.data.message : 'تعذر تنفيذ العملية.'));
++        if (xhr.status >= 200 && xhr.status < 300 && response && response.success) resolve(response.data || {});
++        else reject(new Error(requestErrorMessage(xhr, response)));
+@@
+-    if (status === 'ready') {
+-      progress(field).removeClass('is-active is-complete is-error').attr('hidden', true);
+-    } else if (status === 'queued' || status === 'processing' || status === 'failed') {
++    if (status === 'ready') {
++      update(field, 100, message || (config.labels && config.labels.ready) || (document.documentElement.lang === 'en' ? 'File ready' : 'الملف جاهز'), '', 'complete');
++      window.setTimeout(function () {
++        progress(field).removeClass('is-active is-complete is-error').attr('hidden', true);
++      }, 900);
++    } else if (status === 'queued' || status === 'processing' || status === 'failed') {
+       progress(field).removeAttr('hidden');
+-      update(field, percent, message || (config.labels && config.labels.processing), '', status === 'failed' ? 'error' : '');
++      update(field, status === 'failed' ? 0 : processingPercent(percent), message || (config.labels && config.labels.processing), '', status === 'failed' ? 'error' : '');
+@@
+-    if (file.size > 50 * 1024 * 1024) {
+-      update(field, 0, document.documentElement.lang === 'en' ? 'The file exceeds 50 MB' : 'حجم الملف يتجاوز 50 ميجابايت', '', 'error');
++    var maxBytes = maxUploadBytes();
++    if (file.size > maxBytes) {
++      var maxLabel = config.maxUploadLabel || formatBytes(maxBytes);
++      update(field, 0, document.documentElement.lang === 'en' ? 'The file exceeds the allowed limit (' + maxLabel + ')' : 'حجم الملف يتجاوز الحد المسموح (' + maxLabel + ')', '', 'error');
+       return;
+     }
+@@
+     update(field, 1, config.labels && config.labels.uploading || 'جارٍ رفع ملف PDF…', '');
+     request(field, 'vava_digital_private_pdf_upload', {}, file, function (value) {
+-      update(field, Math.max(2, Math.min(88, value * .88)), config.labels && config.labels.uploading || 'جارٍ رفع ملف PDF…', '');
++      update(field, Math.max(2, Math.min(90, value * .90)), config.labels && config.labels.uploading || 'جارٍ رفع ملف PDF…', '');
+     }).then(function (data) {
+       var uid = field.attr('data-product-uid') || '';
++      update(field, 90, config.labels && config.labels.processing || 'جارٍ تجهيز صفحات المشاهدة المحمية…', '');
+       syncFields(uid, function (target) { renderRecord(target, data.record || {}); target.removeClass('is-uploading').find('button').prop('disabled', false); });
+       poll(field);
