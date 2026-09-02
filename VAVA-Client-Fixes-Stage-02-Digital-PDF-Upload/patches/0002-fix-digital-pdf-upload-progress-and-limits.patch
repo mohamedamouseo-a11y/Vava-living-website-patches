@@ -1,10 +1,7 @@
 diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php b/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php
 --- a/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php
 +++ b/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php
-@@
- function vava_digital_products_format_bytes( int $bytes ): string {
- 	if ( $bytes <= 0 ) { return '—'; }
- 	$units = array( 'B', 'KB', 'MB', 'GB' );
+@@ -204,8 +204,30 @@ function vava_digital_products_format_bytes( int $bytes ): string {
  	$power = min( count( $units ) - 1, (int) floor( log( $bytes, 1024 ) ) );
  	return number_format_i18n( $bytes / pow( 1024, $power ), $power ? 1 : 0 ) . ' ' . $units[ $power ];
  }
@@ -30,8 +27,10 @@ diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-comm
 +	);
 +	return $messages[ $error ] ?? 'تعذر رفع الملف.';
 +}
-@@
- function vava_digital_products_store_uploaded_pdf( int $post_id, string $uid, array $file ) {
+ 
+ 
+ function vava_digital_products_pages_root(): array {
+@@ -267,10 +289,14 @@ function vava_digital_products_store_uploaded_pdf( int $post_id, string $uid, ar
  	$uid = sanitize_key( $uid );
  	if ( ! $post_id || '' === $uid ) { return new WP_Error( 'invalid_product', 'Invalid product.' ); }
  	$error = absint( $file['error'] ?? UPLOAD_ERR_NO_FILE );
@@ -47,12 +46,12 @@ diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-comm
 +		return new WP_Error( 'file_size', sprintf( 'حجم ملف PDF يتجاوز الحد المسموح (%s).', size_format( $max_upload, 1 ) ) );
 +	}
  	$checked = wp_check_filetype_and_ext( $tmp, $name, array( 'pdf' => 'application/pdf' ) );
-@@
- function vava_digital_products_admin_assets( string $hook ): void {
-@@
--	wp_localize_script( 'vava-admin-digital-products', 'VAVA_DIGITAL_PRODUCTS_ADMIN', array(
+@@ -951,10 +977,13 @@ function vava_digital_products_admin_assets( string $hook ): void {
+ 	$post_id = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+ 	if ( ! $post_id || ! function_exists( 'vava_selections_is_page' ) || ! vava_selections_is_page( $post_id ) ) { return; }
+ 	wp_enqueue_script( 'vava-admin-digital-products', get_theme_file_uri( 'assets/js/admin-digital-products.js' ), array( 'jquery' ), vava_asset_version( 'assets/js/admin-digital-products.js' ), true );
 +	$max_upload = vava_digital_products_upload_limit_bytes();
-+	wp_localize_script( 'vava-admin-digital-products', 'VAVA_DIGITAL_PRODUCTS_ADMIN', array(
+ 	wp_localize_script( 'vava-admin-digital-products', 'VAVA_DIGITAL_PRODUCTS_ADMIN', array(
  		'ajaxUrl' => admin_url( 'admin-ajax.php' ),
  		'postId'  => $post_id,
  		'nonce'   => wp_create_nonce( 'vava_digital_product_admin_' . $post_id ),
@@ -61,16 +60,20 @@ diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-comm
  		'labels'  => array(
  			'uploading' => 'جارٍ رفع ملف PDF…',
  			'processing'=> 'جارٍ تجهيز صفحات المشاهدة المحمية…',
- 			'ready'     => 'الملف جاهز للمشاهدة المحمية.',
- 			'failed'    => 'فشل تجهيز الملف.',
- 			'deleted'   => 'تم حذف الملف المحمي.',
- 		),
 diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js b/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js
 --- a/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js
 +++ b/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js
-@@
+@@ -21,13 +21,43 @@
    function update(field, percent, label, meta, state) {
-@@
+     var box = progress(field);
+     percent = Math.max(0, Math.min(100, Number(percent || 0)));
+     box.removeAttr('hidden').addClass('is-active').removeClass('is-error is-complete');
+     if (state === 'error') box.addClass('is-error');
+     if (state === 'complete') box.addClass('is-complete');
+     box.find('[data-upload-progress-bar]').css('width', percent + '%');
+     box.find('[data-upload-progress-percent]').text(Math.round(percent) + '%');
+     if (label) box.find('[data-upload-progress-label]').text(label);
+     if (typeof meta !== 'undefined') box.find('[data-upload-progress-meta]').text(meta || '');
    }
 +
 +  function maxUploadBytes() {
@@ -102,25 +105,30 @@ diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-p
 +    }
 +    return document.documentElement.lang === 'en' ? 'Unable to complete the operation.' : 'تعذر تنفيذ العملية.';
 +  }
-@@
--        if (xhr.status >= 200 && xhr.status < 300 && response && response.success) resolve(response.data || {});
+ 
+   function request(field, action, extra, file, onProgress) {
+@@ -50,7 +80,7 @@
+       xhr.onreadystatechange = function () {
+         if (xhr.readyState !== 4) return;
+         var response = null;
+         try { response = JSON.parse(xhr.responseText || '{}'); } catch (e) {}
+         if (xhr.status >= 200 && xhr.status < 300 && response && response.success) resolve(response.data || {});
 -        else reject(new Error(response && response.data && response.data.message ? response.data.message : 'تعذر تنفيذ العملية.'));
-+        if (xhr.status >= 200 && xhr.status < 300 && response && response.success) resolve(response.data || {});
 +        else reject(new Error(requestErrorMessage(xhr, response)));
-@@
--    if (status === 'ready') {
+       };
+@@ -92,6 +122,9 @@
+     }
+     if (status === 'ready') {
 -      progress(field).removeClass('is-active is-complete is-error').attr('hidden', true);
--    } else if (status === 'queued' || status === 'processing' || status === 'failed') {
-+    if (status === 'ready') {
 +      update(field, 100, message || (config.labels && config.labels.ready) || (document.documentElement.lang === 'en' ? 'File ready' : 'الملف جاهز'), '', 'complete');
 +      window.setTimeout(function () {
-+        progress(field).removeClass('is-active is-complete is-error').attr('hidden', true);
++        if (field.attr('data-processing-status') === 'ready') progress(field).removeClass('is-active is-complete is-error').attr('hidden', true);
 +      }, 900);
-+    } else if (status === 'queued' || status === 'processing' || status === 'failed') {
+     } else if (status === 'queued' || status === 'processing' || status === 'failed') {
        progress(field).removeAttr('hidden');
 -      update(field, percent, message || (config.labels && config.labels.processing), '', status === 'failed' ? 'error' : '');
 +      update(field, status === 'failed' ? 0 : processingPercent(percent), message || (config.labels && config.labels.processing), '', status === 'failed' ? 'error' : '');
-@@
+@@ -128,4 +161,6 @@
 -    if (file.size > 50 * 1024 * 1024) {
 -      update(field, 0, document.documentElement.lang === 'en' ? 'The file exceeds 50 MB' : 'حجم الملف يتجاوز 50 ميجابايت', '', 'error');
 +    var maxBytes = maxUploadBytes();
@@ -129,7 +137,8 @@ diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-p
 +      update(field, 0, document.documentElement.lang === 'en' ? 'The file exceeds the allowed limit (' + maxLabel + ')' : 'حجم الملف يتجاوز الحد المسموح (' + maxLabel + ')', '', 'error');
        return;
      }
-@@
+@@ -134,7 +169,8 @@
+     field.find('button').prop('disabled', true);
      update(field, 1, config.labels && config.labels.uploading || 'جارٍ رفع ملف PDF…', '');
      request(field, 'vava_digital_private_pdf_upload', {}, file, function (value) {
 -      update(field, Math.max(2, Math.min(88, value * .88)), config.labels && config.labels.uploading || 'جارٍ رفع ملف PDF…', '');
