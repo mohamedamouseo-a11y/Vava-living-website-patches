@@ -1,0 +1,46 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php b/wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
+index d49253b..0000000 100644
+--- a/wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
++++ b/wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
+@@ -143,7 +143,6 @@ if ( ! function_exists( 'vava_booking_questionnaire_defaults' ) ) {
+ 							$text( 'new_changes', 'هل حدث شيء جديد منذ الجلسة السابقة؟', 'Has anything new happened since the previous session?', false, 'textarea' ),
+ 							$text( 'next_focus', 'ما أكثر شيء ترغب في التركيز عليه في الجلسة القادمة؟', 'What would you most like to focus on in the next session?', true, 'textarea' ),
+ 							$text( 'questions', 'هل يوجد أي شيء ترغب في قوله أو السؤال عنه؟', 'Is there anything you would like to share or ask?', false, 'textarea' ),
+-							$text( 'daily_activity', 'كيف كان نشاطك اليومي؟', 'How has your daily activity been?', false, 'textarea' ),
+ 							$text( 'additional_notes', 'ملاحظات إضافية', 'Additional notes', false, 'textarea' ),
+ 						),
+ 					),
+@@ -206,8 +205,31 @@ if ( ! function_exists( 'vava_booking_questionnaire_defaults' ) ) {
+ }
+ 
+ function vava_booking_questionnaire_settings( int $page_id = 0 ): array {
+ 	$page_id = $page_id ?: ( function_exists( 'vava_booking_page_id' ) ? vava_booking_page_id() : 0 );
+ 	$stored = $page_id ? get_post_meta( $page_id, '_vava_booking_questionnaires', true ) : array();
+-	return array_replace_recursive( vava_booking_questionnaire_defaults(), is_array( $stored ) ? $stored : array() );
++	$settings = array_replace_recursive( vava_booking_questionnaire_defaults(), is_array( $stored ) ? $stored : array() );
++
++	// Client request: permanently retire the Mid-Journey daily-activity question.
++	// Older installations may still have this field inside saved questionnaire
++	// metadata. Filter it from the effective settings so legacy data cannot
++	// reintroduce the question after the default definition is updated.
++	if ( ! empty( $settings['midpoint']['groups'] ) && is_array( $settings['midpoint']['groups'] ) ) {
++		foreach ( $settings['midpoint']['groups'] as &$group ) {
++			if ( empty( $group['fields'] ) || ! is_array( $group['fields'] ) ) {
++				continue;
++			}
++			$group['fields'] = array_values(
++				array_filter(
++					$group['fields'],
++					static function ( $field ): bool {
++						return ! is_array( $field ) || 'daily_activity' !== sanitize_key( (string) ( $field['id'] ?? '' ) );
++					}
++				)
++			);
++		}
++		unset( $group );
++	}
++
++	return $settings;
+ }
+ 
+ function vava_booking_questionnaire_service_category( array $service ): string {
