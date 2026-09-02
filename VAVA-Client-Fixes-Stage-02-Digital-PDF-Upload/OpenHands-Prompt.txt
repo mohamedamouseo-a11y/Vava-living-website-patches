@@ -1,209 +1,63 @@
-VAVA Living — Stage 02 Follow-up Hotfix #5
-Protected PDF Progress — REMOVE REAL ABSOLUTE/4PX CLIPPING RULE
-LIVE HOSTING / FTP DEPLOYMENT
+VAVA Living — Stage 02 Follow-up Hotfix #6
+LIVE-SERVED admin-homepage.css verification
 
-IMPORTANT
-The protected PDF upload/replacement functionality works.
-The remaining issue is VISUAL CSS LAYOUT ONLY.
-The client has now inspected the LIVE browser CSS rules for the real visible node.
+The PDF upload logic works. The remaining issue is CSS only.
 
-CONFIRMED LIVE ROOT CAUSE
-The real visible progress node is:
+CONFIRMED FROM THE CLIENT'S LIVE BROWSER:
+A fresh no-cache fetch of the loaded admin-homepage.css returned:
+- PATCH 0007 EXISTS: false
+- NEW SELECTOR EXISTS: false
+- OLD ABSOLUTE RULE EXISTS: true
 
-<div class="vava-upload-progress is-active" data-vava-upload-progress ...>
+Therefore the file copy edited in the previous FTP run is not the copy currently served to the browser, or the public asset is still being served from another origin/cache.
 
-DevTools matched-rules inspection proved that the winning base rule is effectively:
+DO NOT change PHP/JS/upload logic.
+DO NOT report success based only on an FTP file being edited.
 
-.vava-upload-progress {
-  position: absolute;
-  height: 4px;
-  overflow: hidden;
-}
+PATCH:
+VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0008-fix-live-served-admin-homepage-progress.patch
 
-This is the actual cause of the visual problem.
-It forces the progress component out of normal document flow, collapses it to 4px height, and clips its internal label/percentage/track.
+PUBLIC ASSET TO VERIFY:
+https://thevavaliving.com/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
 
-The same DevTools inspection showed a later protected-PDF rule that sets display:grid / height:auto / min-height, but it DOES NOT reset position, so position:absolute from the base rule remains active.
+The currently served asset still contains the generic rule:
+.vava-upload-progress{position:absolute;inset-inline:0;bottom:0;height:4px;background:transparent;overflow:hidden}
 
-Also important: the previous 0006 selector did not appear in the matched-rule list on the live browser, so do not assume admin-selections.css alone is the loaded/winning stylesheet for this property.
+Find the actual WordPress/theme copy that serves this public asset. Check for duplicate site roots/theme copies on the FTP account instead of assuming the first wp-content path is live.
 
-DO NOT:
-- clone the source repository
-- create Git branches
-- commit or push source
-- work in /tmp
-- modify PHP
-- modify JavaScript upload logic
-- change upload percentages or limits
-- change AJAX/PDF processing/storage/security
-- change checkout/payment/access control
-- modify unrelated admin styling
+Before modifying the verified served file create:
+admin-homepage.css.bak-stage02-layout6
 
-FIRST — IDENTIFY THE EXACT LIVE OFFENDING FILE
-Using FTP/live file access, search the ACTIVE theme CSS files for the rule that sets .vava-upload-progress to position:absolute and/or height:4px and overflow:hidden.
+Apply Patch 0008 ONLY to the verified served admin-homepage.css.
+The patch contains a unique marker comment:
+Stage 02 Follow-up #6 — LIVE-SERVED-ASSET marker
 
-Theme root:
-wp-content/themes/vava-living-theme-ar-v1/
+After editing, verify the public asset again with a cache-busting query string. The HTTP response itself must contain both:
+- Stage 02 Follow-up #6 — LIVE-SERVED-ASSET marker
+- [data-vava-upload-progress].is-active:not([hidden])
 
-Search at least:
-assets/css/*.css
+If the public response does not contain them, do not report success. Continue diagnosing the served document root/static cache until the exact served asset is identified, or report the unresolved mapping clearly.
 
-Report the exact live CSS path containing the offending base rule.
+The scoped protected-PDF override must result in:
+- position: relative !important
+- display: grid !important
+- height: auto !important
+- min-height: 72px !important
+- overflow: visible !important
+- full label, percentage and progress track visible
 
-Expected likely shared stylesheet:
-assets/css/admin-vava-shared.css
+The old generic absolute/4px rule may remain for other media controls; the new scoped protected-PDF rule must appear later in the served CSS and win for the protected PDF element.
 
-But DO NOT assume this path if live files differ. Locate the actual rule first.
-
-PATCH TO APPLY
-VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0007-fix-shared-upload-progress-absolute-rule.patch
-
-The supplied patch targets:
-wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-vava-shared.css
-
-If the offending LIVE rule is in this file, apply the patch there.
-
-If the exact live offending rule is in another loaded CSS file, do NOT blindly patch the wrong file. Reproduce the SAME narrowly scoped override in the exact loaded offending stylesheet after the base .vava-upload-progress rule.
-
-BACKUP
-Before modification create a new backup of the ACTUAL CSS file being changed, for example:
-
-assets/css/admin-vava-shared.css.bak-stage02-layout5
-
-If the offending file has a different name, back up that exact file with suffix:
-.bak-stage02-layout5
-
-Do not overwrite prior backups.
-
-REQUIRED FIX
-Do NOT globally redesign all upload progress components.
-For the VAVA Selections admin protected-PDF progress only, add a more specific rule in the SAME loaded stylesheet as the offending base rule:
-
-body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden])
-
-It MUST explicitly reset the offending properties:
-
-position: relative !important;
-inset: auto !important;
-height: auto !important;
-min-height: 72px !important;
-max-height: none !important;
-overflow: visible !important;
-
-It must also keep the intended protected-PDF layout:
-
-display: grid !important;
-width: calc(100% - 28px) !important;
-max-width: calc(100% - 28px) !important;
-margin: -6px auto 12px !important;
-padding: 12px 16px !important;
-grid-template-rows: auto 8px !important;
-grid-auto-rows: max-content !important;
-align-content: center !important;
-align-items: center !important;
-justify-items: stretch !important;
-gap: 8px !important;
-box-sizing: border-box !important;
-transform: none !important;
-
-The status head must remain full width and use label + percent columns.
-The progress track must remain full-width and 8px high.
-Empty [data-upload-progress-meta] must not consume a row.
-
-Release overflow/height constraints on containing VAVA Selections parent elements only when they :has() the active real progress node.
-
-DO NOT remove the base .vava-upload-progress rule globally unless absolutely necessary.
-Prefer the scoped VAVA Selections override so other upload components are not changed.
-
-CACHE / LOADED ASSET VERIFICATION
-This step is mandatory because previous patches existed on disk but did not appear in the browser matched-rule list.
-
-After modifying the live file:
-1. Confirm the CSS file contents on disk contain the new scoped selector.
-2. Confirm the WordPress page is loading the modified stylesheet URL.
-3. Hard refresh the admin page.
-4. If the stylesheet URL uses a ?ver= asset version, verify the loaded version changes appropriately or otherwise ensure the browser receives the new file.
-5. Do not report success if the browser is still loading an older cached copy.
-
-LIVE BROWSER PASS CONDITIONS
-During an actual PDF upload, inspect the real [data-vava-upload-progress] node.
-
-Computed style MUST show:
-- display: grid
-- position: relative
-- min-height: approximately 72px
-- height no longer 4px
-- overflow no longer clipping the full panel
-
-The old state:
-position:absolute
-height:4px
-must NOT be the final computed result.
-
-Run:
-
-const progress = [...document.querySelectorAll('[data-vava-upload-progress]')].find(el => {
-  const r = el.getBoundingClientRect();
-  const s = getComputedStyle(el);
-  return r.width > 0 && r.height > 0 && s.display !== 'none';
-});
-const cs = getComputedStyle(progress);
-const r = progress.getBoundingClientRect();
-console.log({
-  display: cs.display,
-  position: cs.position,
-  height: cs.height,
-  minHeight: cs.minHeight,
-  overflow: cs.overflow,
-  rectHeight: r.height,
-  rectWidth: r.width,
-  marginTop: cs.marginTop,
-  paddingTop: cs.paddingTop,
-  paddingBottom: cs.paddingBottom
-});
-
-MANDATORY SUCCESS:
-- position === 'relative'
-- display === 'grid'
-- computed height is NOT 4px
-- rectHeight >= approximately 65px
-- full label visible
-- percentage visible
-- full progress track visible
-- panel stays inside the outer card
-- buttons remain below it
-- protected-file note remains visible
-- PDF upload/replacement still works
-
-MATCHED-RULE VERIFICATION
-Inspect DevTools matched CSS rules for the real progress element.
-The new scoped selector from the modified shared/offending stylesheet MUST appear in the matched-rule list.
-
-If it does not appear:
-DO NOT report success.
-Find out whether:
-- the wrong file was modified,
-- the stylesheet is not enqueued,
-- or a stale cached asset is being served.
-
-REPORT
-Return:
-1. Exact offending live CSS file found.
-2. Exact offending rule found.
-3. Exact live file modified.
+REPORT:
+1. Candidate admin-homepage.css paths found.
+2. Exact path proven to serve the public asset.
+3. Exact file modified.
 4. Backup created.
-5. Whether 0007 applied directly or manually reproduced in another exact loaded stylesheet.
-6. Loaded stylesheet URL/version after refresh.
-7. Whether the new scoped selector appears in DevTools matched rules.
-8. Computed position.
-9. Computed height.
-10. Computed minHeight.
-11. Computed overflow.
-12. rectHeight.
-13. Whether label/percentage/track are fully visible.
-14. Whether clipping remains.
-15. Confirmation PDF upload still works.
+5. Whether Patch 0008 applied directly or manually.
+6. Cache-busted public CSS URL checked.
+7. Public marker present: true/false.
+8. Public new selector present: true/false.
+9. Any duplicate docroot/cache mismatch found.
+10. Do not claim visual success unless the public response contains the marker.
 
-SUCCESS IS NOT ALLOWED if computed position is still absolute or if rectHeight remains around 25px / height 4px.
-
-STOP after this Stage 02 follow-up.
+STOP after this Stage 02 deployment-path fix.
