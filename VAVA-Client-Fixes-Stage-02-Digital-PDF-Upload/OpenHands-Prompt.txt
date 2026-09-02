@@ -1,0 +1,65 @@
+VAVA Living — Client Fixes Stage 02
+
+Target source repository:
+- mohamedamouseo-a11y/Vava-living-website
+- Base reference: main
+
+IMPORTANT SAFETY / SCOPE RULES
+- DO NOT push, merge, commit directly to, or force-update the source repository main branch.
+- Create/work on a dedicated non-main branch, for example: stage02-fix-digital-pdf-upload.
+- Apply only the supplied Stage 02 patch.
+- Do not refactor, rename, reformat, or touch unrelated code.
+- Do not change digital product descriptions, checkout/payment logic, customer-library permissions, PDF access-control rules, login behavior, tagline/footer wording, questionnaires, booking rules, or any other client request in this stage.
+
+CLIENT ISSUE
+When replacing/uploading the protected PDF of a digital product from the admin panel:
+- the upload takes a long time,
+- the progress percentage does not reach completion correctly,
+- and the admin may eventually show that the file could not be uploaded.
+
+ROOT CAUSES CONFIRMED IN CURRENT CODE
+1. `assets/js/admin-digital-products.js` allows a hard-coded 50 MB upload, even when PHP/WordPress has a smaller effective upload limit.
+2. Network upload progress is capped at 88%, while server-side protected-page processing restarts from approximately 1%, making the visible progress appear stuck or move backwards.
+3. Backend PHP upload errors are mostly reduced to the generic `تعذر رفع الملف.` message.
+
+SOURCE FILES
+- wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php
+- wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js
+
+REQUIRED IMPLEMENTATION
+1. Apply:
+   VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0002-fix-digital-pdf-upload-progress-and-limits.patch
+2. PHP/backend:
+   - Add one helper that returns the effective protected-PDF upload limit as the smaller of 50 MB and `wp_max_upload_size()`.
+   - Validate the uploaded file against that effective limit.
+   - Expose `maxUploadBytes` and `maxUploadLabel` through `VAVA_DIGITAL_PRODUCTS_ADMIN`.
+   - Preserve the existing protected-storage and PDF-processing architecture.
+   - Return meaningful messages for standard PHP upload error codes instead of one generic error.
+3. JavaScript/admin UI:
+   - Read the effective upload limit from localized config instead of relying on a hard-coded 50 MB check.
+   - Reject an oversized PDF before starting the request and display the actual allowed size.
+   - Treat the network upload as roughly 0–90%.
+   - Map queued/processing progress into roughly 90–100% so the visible percentage never jumps backwards after upload succeeds.
+   - Display 100% briefly when the protected file reaches `ready`.
+   - Surface useful messages for HTTP 413, interrupted requests, and server-side failures.
+4. Keep existing PDF-only validation and all current protected-file permissions/security checks intact.
+
+VALIDATION
+- Run `git apply --check` before applying the patch.
+- Apply the patch only if the check succeeds.
+- Run `php -l wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php` when PHP CLI is available.
+- Run a JavaScript syntax check for `assets/js/admin-digital-products.js` (for example `node --check`) when Node is available.
+- Confirm only the two listed source files changed.
+- Confirm the effective limit uses `wp_max_upload_size()` and never exceeds 50 MB.
+- Confirm a file above the effective limit is rejected client-side with a clear message.
+- Confirm upload progress cannot drop from ~90% back to ~1% when processing begins.
+- Confirm `ready` reaches 100% before the progress UI is hidden.
+- Confirm the AJAX nonce/capability checks, protected storage path, PDF-only validation, processing cron, and customer access controls are unchanged.
+
+IMPORTANT
+If `git apply --check` fails because the source moved after this patch was created, DO NOT force it and DO NOT modify unrelated code. Inspect only the two target files and reproduce the same narrowly-scoped changes on the working branch, then run the validation checks again.
+
+EXPECTED RESULT
+Uploading/replacing a protected digital-product PDF should provide accurate server-aware size validation, clear upload errors, and a continuous progress experience from upload through protected-page processing, without changing checkout, access control, product content, or any unrelated functionality.
+
+STOP after Stage 02. Do not proceed to another client fix.
