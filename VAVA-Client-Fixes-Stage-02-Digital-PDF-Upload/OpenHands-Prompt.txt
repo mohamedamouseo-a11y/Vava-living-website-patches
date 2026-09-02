@@ -1,65 +1,122 @@
-VAVA Living — Client Fixes Stage 02
+VAVA Living — Stage 02 Follow-up Hotfix
+Protected PDF Progress Layout
+LIVE HOSTING / FTP DEPLOYMENT
 
-Target source repository:
-- mohamedamouseo-a11y/Vava-living-website
-- Base reference: main
+IMPORTANT DEPLOYMENT MODE
+You are connected directly to the VAVA Living production hosting through FTP.
 
-IMPORTANT SAFETY / SCOPE RULES
-- DO NOT push, merge, commit directly to, or force-update the source repository main branch.
-- Create/work on a dedicated non-main branch, for example: stage02-fix-digital-pdf-upload.
-- Apply only the supplied Stage 02 patch.
-- Do not refactor, rename, reformat, or touch unrelated code.
-- Do not change digital product descriptions, checkout/payment logic, customer-library permissions, PDF access-control rules, login behavior, tagline/footer wording, questionnaires, booking rules, or any other client request in this stage.
+This is NOT a Git branch task.
+Apply the supplied layout hotfix DIRECTLY to the live WordPress theme files.
+
+DO NOT:
+- clone the source repository,
+- create a Git branch,
+- create commits,
+- push anything to GitHub,
+- work in /tmp,
+- re-apply the already-deployed Stage 02 PHP/JavaScript upload logic,
+- modify unrelated files.
+
+CURRENT STATUS
+The functional Stage 02 upload fix is already deployed successfully on production:
+- inc/digital-products-commerce-vava.php
+- assets/js/admin-digital-products.js
+
+The PDF itself uploads and replaces correctly.
+The remaining issue is VISUAL LAYOUT ONLY.
 
 CLIENT ISSUE
-When replacing/uploading the protected PDF of a digital product from the admin panel:
-- the upload takes a long time,
-- the progress percentage does not reach completion correctly,
-- and the admin may eventually show that the file could not be uploaded.
+During PDF upload, the progress component is partially hidden/clipped at the bottom of the protected-PDF field/product card.
+The percentage and progress/status area exist and update, but the container does not expand correctly to show the full component.
 
-ROOT CAUSES CONFIRMED IN CURRENT CODE
-1. `assets/js/admin-digital-products.js` allows a hard-coded 50 MB upload, even when PHP/WordPress has a smaller effective upload limit.
-2. Network upload progress is capped at 88%, while server-side protected-page processing restarts from approximately 1%, making the visible progress appear stuck or move backwards.
-3. Backend PHP upload errors are mostly reduced to the generic `تعذر رفع الملف.` message.
+CONFIRMED CSS CAUSE
+Inspect the LIVE file:
+wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
 
-SOURCE FILES
-- wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php
-- wp-content/themes/vava-living-theme-ar-v1/assets/js/admin-digital-products.js
+The protected PDF layout currently combines rules such as:
+- .vava-selections-product-item { overflow:hidden; }
+- .vava-protected-pdf-field { height:100%; }
+- .vava-protected-pdf-field > .vava-media-field { min-height:100%; display:flex; flex-direction:column; }
+- .vava-protected-pdf-field .vava-media-actions { margin-top:auto; }
 
-REQUIRED IMPLEMENTATION
-1. Apply:
-   VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0002-fix-digital-pdf-upload-progress-and-limits.patch
-2. PHP/backend:
-   - Add one helper that returns the effective protected-PDF upload limit as the smaller of 50 MB and `wp_max_upload_size()`.
-   - Validate the uploaded file against that effective limit.
-   - Expose `maxUploadBytes` and `maxUploadLabel` through `VAVA_DIGITAL_PRODUCTS_ADMIN`.
-   - Preserve the existing protected-storage and PDF-processing architecture.
-   - Return meaningful messages for standard PHP upload error codes instead of one generic error.
-3. JavaScript/admin UI:
-   - Read the effective upload limit from localized config instead of relying on a hard-coded 50 MB check.
-   - Reject an oversized PDF before starting the request and display the actual allowed size.
-   - Treat the network upload as roughly 0–90%.
-   - Map queued/processing progress into roughly 90–100% so the visible percentage never jumps backwards after upload succeeds.
-   - Display 100% briefly when the protected file reaches `ready`.
-   - Surface useful messages for HTTP 413, interrupted requests, and server-side failures.
-4. Keep existing PDF-only validation and all current protected-file permissions/security checks intact.
+The progress element is dynamically inserted in normal markup between the PDF dropzone and the action buttons. When it becomes visible, the fixed/full-height flex layout does not expand naturally and the outer product card clips the overflow.
 
-VALIDATION
-- Run `git apply --check` before applying the patch.
-- Apply the patch only if the check succeeds.
-- Run `php -l wp-content/themes/vava-living-theme-ar-v1/inc/digital-products-commerce-vava.php` when PHP CLI is available.
-- Run a JavaScript syntax check for `assets/js/admin-digital-products.js` (for example `node --check`) when Node is available.
-- Confirm only the two listed source files changed.
-- Confirm the effective limit uses `wp_max_upload_size()` and never exceeds 50 MB.
-- Confirm a file above the effective limit is rejected client-side with a clear message.
-- Confirm upload progress cannot drop from ~90% back to ~1% when processing begins.
-- Confirm `ready` reaches 100% before the progress UI is hidden.
-- Confirm the AJAX nonce/capability checks, protected storage path, PDF-only validation, processing cron, and customer access controls are unchanged.
+PATCH TO APPLY
+Use the supplementary patch from the patches repository:
+VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0003-fix-digital-pdf-progress-layout.patch
+
+TARGET LIVE FILE
+wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
+
+REQUIRED WORKFLOW
+1. Locate the live active theme:
+   wp-content/themes/vava-living-theme-ar-v1/
+
+2. Before editing, create a backup:
+   assets/css/admin-selections.css.bak-stage02-layout
+
+3. Apply ONLY the CSS layout hotfix from:
+   0003-fix-digital-pdf-progress-layout.patch
+
+4. The resulting protected-PDF layout must:
+   - use content-driven height instead of forcing height:100%,
+   - remove the inherited min-height:100% constraint from the inner media field,
+   - keep the visible .vava-upload-progress in normal document flow,
+   - keep the progress component at width:100%,
+   - give progress, action buttons, and the private-file note their own vertical space,
+   - replace the action row's margin-top:auto behavior with predictable spacing below progress,
+   - allow the product editor card to expand vertically while progress is visible.
+
+5. DO NOT change:
+   - upload percentages,
+   - PHP upload limits,
+   - JavaScript upload logic,
+   - AJAX behavior,
+   - PDF processing,
+   - protected storage,
+   - product content,
+   - checkout/payment,
+   - access controls,
+   - any other admin styling.
 
 IMPORTANT
-If `git apply --check` fails because the source moved after this patch was created, DO NOT force it and DO NOT modify unrelated code. Inspect only the two target files and reproduce the same narrowly-scoped changes on the working branch, then run the validation checks again.
+If the exact patch cannot be applied automatically because the live CSS has drifted, inspect the current LIVE rules and manually reproduce only the same narrow CSS behavior.
+Do not overwrite newer unrelated CSS.
 
-EXPECTED RESULT
-Uploading/replacing a protected digital-product PDF should provide accurate server-aware size validation, clear upload errors, and a continuous progress experience from upload through protected-page processing, without changing checkout, access control, product content, or any unrelated functionality.
+LIVE VISUAL VALIDATION
+After applying the hotfix:
 
-STOP after Stage 02. Do not proceed to another client fix.
+1. Open the VAVA Selections / digital-products admin editor.
+2. Choose or replace a protected PDF.
+3. Start the upload.
+4. While upload is active, verify all of these are fully visible:
+   - progress label,
+   - percentage,
+   - progress track/bar,
+   - Replace/Choose button,
+   - Delete button when present,
+   - protected-file information note.
+5. Confirm the progress box appears directly below the PDF preview/dropzone and above the action buttons.
+6. Confirm no part of the progress UI is hidden behind or clipped by the surrounding container.
+7. Confirm the product card grows vertically while progress is visible.
+8. Confirm there is no horizontal overflow.
+9. Test at normal desktop width and at WordPress responsive/admin mobile width if available.
+10. Confirm PDF replacement/upload still works exactly as before.
+
+CACHE
+If an accessible WordPress/admin CSS cache exists, clear it.
+If no cache control is available through FTP, report that and perform a hard refresh during validation.
+
+REPORT
+Return:
+1. Exact live file modified.
+2. Exact backup file created.
+3. Whether the patch applied directly or was reproduced manually due to live drift.
+4. CSS validation/result.
+5. Desktop visual test result.
+6. Responsive/mobile admin test result if available.
+7. Confirmation that the progress component is fully visible and no longer clipped.
+8. Confirmation that the existing PDF upload/replacement behavior still works.
+
+STOP after this Stage 02 layout hotfix.
+Do not proceed to another client fix.
