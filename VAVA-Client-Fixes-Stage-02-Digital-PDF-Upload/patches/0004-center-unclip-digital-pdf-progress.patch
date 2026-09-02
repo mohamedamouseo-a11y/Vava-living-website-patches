@@ -1,0 +1,61 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
+--- a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
++++ b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
+@@ -497,3 +497,55 @@
+ .vava-selections-admin .vava-protected-pdf-field .vava-private-file-note{
+   flex:0 0 auto!important
+ }
++
++/* Release 1.19.6 — center the protected-PDF progress panel and prevent ancestor clipping. */
++.vava-selections-admin .vava-selections-product-item:has(.vava-protected-pdf-field .vava-upload-progress:not([hidden])){
++  overflow:visible!important
++}
++.vava-selections-admin .vava-selections-product-item:has(.vava-protected-pdf-field .vava-upload-progress:not([hidden])) .vava-repeater-item-body{
++  overflow:visible!important;
++  align-items:start!important
++}
++.vava-selections-admin .vava-protected-pdf-field:has(.vava-upload-progress:not([hidden])){
++  align-self:start!important;
++  overflow:visible!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-upload-progress:not([hidden]){
++  display:grid!important;
++  position:relative!important;
++  z-index:5!important;
++  width:calc(100% - 24px)!important;
++  max-width:calc(100% - 24px)!important;
++  height:auto!important;
++  min-height:62px!important;
++  max-height:none!important;
++  margin:4px auto 12px!important;
++  padding:12px 14px!important;
++  grid-auto-rows:max-content!important;
++  align-content:center!important;
++  align-items:center!important;
++  justify-items:stretch!important;
++  gap:7px!important;
++  overflow:visible!important;
++  box-sizing:border-box!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-upload-progress-head{
++  width:100%!important;
++  min-height:20px!important;
++  margin:0!important;
++  align-self:center!important;
++  line-height:1.35!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-upload-progress-track{
++  width:100%!important;
++  min-height:8px!important;
++  margin:0!important;
++  align-self:center!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-upload-progress small:empty{
++  display:none!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-upload-progress small:not(:empty){
++  display:block!important;
++  width:100%!important;
++  margin:0!important;
++  line-height:1.45!important
++}
