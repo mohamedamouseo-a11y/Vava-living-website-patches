@@ -1,195 +1,155 @@
-VAVA Living — Stage 02 Follow-up Hotfix #3
-Protected PDF Progress — REAL DOM SELECTOR + POSITION FIX
+VAVA Living — Stage 02 Follow-up Hotfix #4
+Protected PDF Progress — TARGET ACTUAL RENDERED NODE
 LIVE HOSTING / FTP DEPLOYMENT
 
 IMPORTANT
-The PDF upload/replacement functionality already works.
+The PDF upload/replacement functionality works.
 The remaining issue is VISUAL CSS LAYOUT ONLY.
-Previous reports said the issue was fixed, but the client confirmed it is STILL visible on production.
-Do NOT mark this task complete based on static CSS inspection alone.
-You MUST verify the real active DOM and actual element geometry while an upload is running.
+The client has now provided a LIVE browser DOM inspection while the broken progress UI is visible.
+
+LIVE FACT CONFIRMED BY BROWSER
+The actual visible node is:
+
+<div class="vava-upload-progress is-active" data-vava-upload-progress ...>
+
+Its LIVE getBoundingClientRect() height was approximately:
+25.6px
+
+This is the key finding.
+Patch 0005 attempted min-height:72px, but the live visible progress element still measured only ~25.6px.
+Therefore the previous wrapper-dependent selector did NOT apply to the actual rendered node.
 
 DO NOT:
-- clone the source repository,
-- create Git branches,
-- create commits in the source repository,
-- push source changes to GitHub,
-- work in /tmp,
-- change PHP upload logic,
-- change JavaScript upload percentages or AJAX logic,
-- change PDF processing, storage, checkout, payments, permissions, or unrelated styling.
+- clone source repo
+- create Git branch
+- commit/push source
+- work in /tmp
+- change PHP
+- change JS upload logic
+- change upload limits/percentages/AJAX
+- change PDF processing/storage/security
+- change payments/checkout/access control
+- modify unrelated admin styling
 
-CONFIRMED REAL DOM / JS STATE
-The live/source JavaScript adds the upload state directly to the actual protected PDF field:
+NEW APPROACH
+Do NOT depend on .vava-protected-pdf-field, .vava-product-protected-file, or any guessed wrapper class to style the progress itself.
 
-field.addClass('is-uploading');
+Target the REAL rendered node directly:
 
-where field is selected by:
+[data-vava-upload-progress].is-active:not([hidden])
 
-[data-vava-private-pdf-field]
-
-The real element therefore becomes:
-
-.vava-protected-pdf-field.is-uploading
-
-IMPORTANT:
-The previous manual hotfix report referenced:
-
-.vava-product-protected-file.is-uploading
-
-Do NOT rely on that selector unless you prove that class really exists in the LIVE DOM.
-It is not the selector used by the actual upload JavaScript.
-
-Also, the correct metadata selector is:
-
-[data-upload-progress-meta]
-
-NOT:
-
-[v-data-upload-progress-meta]
-
-CLIENT'S CURRENT VISUAL ISSUE
-The progress/status panel is visually buried too low inside another rounded container.
-The text and percentage can be seen near the lower border, while the progress content appears partially hidden.
-
-Desired result:
-- the inner progress panel stays INSIDE the protected PDF card,
-- it is horizontally centered,
-- it is raised slightly upward,
-- the status text and percentage are vertically centered,
-- the full progress track is visible,
-- all content stays within the surrounding card borders,
-- no clipping occurs.
+Use :has(...) only to release height/overflow constraints on known generic parent containers that actually contain that real node.
 
 PATCH TO APPLY
-VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0005-fix-real-pdf-progress-selector-and-position.patch
+VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0006-target-real-progress-data-attribute.patch
 
 TARGET LIVE FILE
 wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
 
-BACKUP
-Before editing create:
+BACKUP FIRST
+Create:
+assets/css/admin-selections.css.bak-stage02-layout4
 
-assets/css/admin-selections.css.bak-stage02-layout3
+Do not overwrite any prior backup.
 
-Do not overwrite previous backups.
+REQUIRED RESULT
+The active progress panel must:
+- be selected directly through [data-vava-upload-progress].is-active:not([hidden])
+- display as grid
+- remain in normal flow
+- be centered horizontally
+- use width:calc(100% - 28px)
+- have height:auto
+- have min-height:72px
+- have max-height:none
+- use margin approximately -6px auto 12px
+- use padding 12px 16px
+- use grid-template-rows:auto 8px
+- use align-content:center
+- show label and percentage in one row
+- show an 8px full-width progress track below
+- hide [data-upload-progress-meta] only when empty
+- keep buttons and note below progress
 
-REQUIRED IMPLEMENTATION
-Apply ONLY patch 0005 to the live CSS.
-Keep 0003 and 0004 in place unless a directly conflicting rule must be overridden by the newer 0005 rules.
-Do not remove unrelated CSS.
+PARENT CONTAINERS
+While the real progress node is visible, release clipping/height restrictions using :has([data-vava-upload-progress].is-active:not([hidden])) on:
+- .vava-selections-product-item
+- .vava-repeater-item-body
+- .vava-repeater-field
+- .vava-media-field where applicable
 
-The new rules intentionally target the REAL state selectors:
+Do not guess a product-specific wrapper class.
 
-.vava-protected-pdf-field.is-uploading
-.vava-protected-pdf-field[data-processing-status="queued"]
-.vava-protected-pdf-field[data-processing-status="processing"]
-.vava-protected-pdf-field[data-processing-status="failed"]
+CRITICAL LIVE VALIDATION
+Do NOT report success from static file inspection.
+The client already proved that previous rules could exist in CSS without affecting the real node.
 
-The progress panel must:
-- remain in normal flow,
-- be width calc(100% - 28px),
-- be centered using auto side margins,
-- move upward slightly with margin-top around -8px,
-- have enough internal height (about 72px minimum),
-- keep status row and progress track visible,
-- use a two-column status row: label + percent,
-- use a full-width 8px progress track,
-- hide only an EMPTY [data-upload-progress-meta] row,
-- keep Replace/Delete buttons below the progress panel.
+After deployment and hard refresh, start an actual PDF upload and run:
 
-LIVE DOM VERIFICATION — MANDATORY
-Do not claim success without performing these checks while an upload is ACTIVELY running.
+const progress = [...document.querySelectorAll('[data-vava-upload-progress]')].find(el => {
+  const r = el.getBoundingClientRect();
+  const s = getComputedStyle(el);
+  return r.width > 0 && r.height > 0 && s.display !== 'none';
+});
 
-1. Start replacing/uploading a protected PDF in the live WordPress admin.
+const cs = getComputedStyle(progress);
+const r = progress.getBoundingClientRect();
 
-2. Confirm the actual active field exists:
+console.log({
+  className: progress.className,
+  hidden: progress.hasAttribute('hidden'),
+  display: cs.display,
+  position: cs.position,
+  width: cs.width,
+  height: cs.height,
+  minHeight: cs.minHeight,
+  marginTop: cs.marginTop,
+  paddingTop: cs.paddingTop,
+  paddingBottom: cs.paddingBottom,
+  rectTop: r.top,
+  rectBottom: r.bottom,
+  rectWidth: r.width,
+  rectHeight: r.height
+});
 
-document.querySelectorAll('.vava-protected-pdf-field.is-uploading').length
+MANDATORY PASS CONDITIONS
+While progress is visibly active:
+- progress exists
+- hidden === false
+- display === grid
+- rectHeight must be at least 65px (target ~72px or larger depending box model/content)
+- minHeight computed style should reflect 72px
+- full label visible
+- percentage visible
+- full progress track visible
+- no content sits on/crosses the lower rounded border
 
-Expected while network upload is active: at least 1.
+If rectHeight is still around 25–30px:
+STOP.
+Do NOT claim success.
+That means the new CSS still is not affecting the live rendered node.
+Inspect DevTools > Styles for the actual [data-vava-upload-progress] element and report which rule/property is winning for min-height/height/display/padding.
 
-3. Check whether the old selector from the previous report exists:
-
-document.querySelectorAll('.vava-product-protected-file.is-uploading').length
-
-Report the result. Do not assume it exists.
-
-4. Obtain the active field and progress element:
-
-const field = document.querySelector('.vava-protected-pdf-field.is-uploading') || document.querySelector('.vava-protected-pdf-field[data-processing-status="queued"], .vava-protected-pdf-field[data-processing-status="processing"], .vava-protected-pdf-field[data-processing-status="failed"]');
-const progress = field && field.querySelector('[data-vava-upload-progress]');
-
-5. Confirm the progress element is actually visible:
-- hidden attribute must be absent while active,
-- getComputedStyle(progress).display must not be 'none'.
-
-6. Capture computed styles for the progress element:
-- position
-- width
-- height
-- marginTop
-- overflow
-- display
-- alignContent
-
-7. GEOMETRY CHECK — REQUIRED
-Use getBoundingClientRect():
-
-const fieldRect = field.getBoundingClientRect();
-const progressRect = progress.getBoundingClientRect();
-
-Verify:
-- progressRect.top >= fieldRect.top
-- progressRect.bottom <= fieldRect.bottom
-- progressRect.left > fieldRect.left
-- progressRect.right < fieldRect.right
-
-The progress panel must physically fit inside the visible protected PDF field.
-
-8. Inspect the status row and track:
-
-const head = progress.querySelector('.vava-upload-progress-head');
-const track = progress.querySelector('.vava-upload-progress-track');
-
-Confirm both have non-zero width and height and both rectangles are fully inside progressRect.
-
-9. Confirm these are simultaneously visible:
-- upload status label
-- percentage
-- progress track/bar
-
-10. Confirm the text is not touching or crossing the bottom border.
-
-11. Confirm Replace/Delete buttons remain visually below the progress panel.
-
-12. Confirm the protected-file note remains visible.
-
-13. Confirm no horizontal overflow.
-
-14. Hard refresh the admin page after deployment before final visual testing.
-
-15. Test at desktop admin width. Test responsive/admin mobile width if available.
-
-IMPORTANT SUCCESS CONDITION
-Static checks such as "rule exists in admin-selections.css" are NOT sufficient.
-The task is successful only if the actual LIVE DOM geometry confirms the visible progress panel fits inside its protected PDF field and the client-visible clipping is gone.
+Also inspect ancestor chain only if clipping remains AFTER the progress element itself measures >=65px.
 
 REPORT
 Return:
-1. Exact live file modified.
-2. Backup created.
-3. Whether 0005 applied directly or manually.
-4. document.querySelectorAll('.vava-protected-pdf-field.is-uploading').length during upload.
-5. document.querySelectorAll('.vava-product-protected-file.is-uploading').length during upload.
-6. Computed progress display/position/width/height/marginTop.
-7. fieldRect dimensions.
-8. progressRect dimensions.
-9. Whether progressRect is fully inside fieldRect on all four sides.
-10. Whether head and track both have non-zero visible rectangles.
-11. Desktop visual result.
-12. Responsive result if available.
-13. Confirmation PDF upload/replacement remains functional.
+1. exact live file modified
+2. backup created
+3. whether 0006 applied directly or manually
+4. active progress className
+5. computed display
+6. computed height
+7. computed minHeight
+8. rectHeight
+9. marginTop
+10. paddingTop/paddingBottom
+11. whether label is fully visible
+12. whether percentage is fully visible
+13. whether progress track is fully visible
+14. whether clipping remains
+15. confirmation PDF upload still works
 
-STOP after this hotfix.
-Do not proceed to another client fix.
+SUCCESS IS NOT ALLOWED if rectHeight remains around 25.6px.
+
+STOP after this Stage 02 follow-up.
