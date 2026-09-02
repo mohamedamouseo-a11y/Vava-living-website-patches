@@ -1,0 +1,59 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
+--- a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
++++ b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
+@@
+ .vava-upload-progress{position:absolute;inset-inline:0;bottom:0;height:4px;background:transparent;overflow:hidden}
+ .vava-upload-progress span{display:block;width:0;height:100%;background:var(--vava-admin-accent);transition:width .16s ease}
+ .vava-media-field.is-uploading .vava-media-dropzone{pointer-events:none;opacity:.75}
+ .vava-media-field.is-uploading .vava-upload-progress{background:#e1e6df}
++
++/* Stage 02 Follow-up #6 — LIVE-SERVED-ASSET marker. Protected PDF progress must not inherit the generic 4px absolute bar. */
++body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden]){
++  position:relative!important;
++  inset:auto!important;
++  bottom:auto!important;
++  display:grid!important;
++  width:calc(100% - 28px)!important;
++  max-width:calc(100% - 28px)!important;
++  height:auto!important;
++  min-height:72px!important;
++  max-height:none!important;
++  margin:-6px auto 12px!important;
++  padding:12px 16px!important;
++  grid-template-rows:auto 8px!important;
++  grid-auto-rows:max-content!important;
++  align-content:center!important;
++  align-items:center!important;
++  justify-items:stretch!important;
++  gap:8px!important;
++  overflow:visible!important;
++  box-sizing:border-box!important;
++  transform:none!important
++}
++body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden]) .vava-upload-progress-head{
++  display:grid!important;
++  grid-template-columns:minmax(0,1fr) auto!important;
++  align-items:center!important;
++  width:100%!important;
++  min-width:0!important;
++  gap:10px!important
++}
++body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden]) .vava-upload-progress-track{
++  display:block!important;
++  width:100%!important;
++  height:8px!important;
++  min-height:8px!important;
++  overflow:hidden!important
++}
++body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden]) [data-upload-progress-meta]:empty{
++  display:none!important
++}
++body.vava-advanced-page-editor .vava-selections-product-item:has([data-vava-upload-progress].is-active:not([hidden])),
++body.vava-advanced-page-editor .vava-repeater-item-body:has([data-vava-upload-progress].is-active:not([hidden])),
++body.vava-advanced-page-editor .vava-repeater-field:has([data-vava-upload-progress].is-active:not([hidden])),
++body.vava-advanced-page-editor .vava-media-field:has([data-vava-upload-progress].is-active:not([hidden])){
++  height:auto!important;
++  min-height:0!important;
++  overflow:visible!important
++}
+ .vava-media-error{margin-top:10px;padding:9px 11px;border:1px solid #e6a9a9;border-radius:7px;background:#fff1f1;color:#9c2c2c;font-size:12px}
