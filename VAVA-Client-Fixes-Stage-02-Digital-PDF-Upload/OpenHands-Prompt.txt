@@ -1,63 +1,84 @@
-VAVA Living — Stage 02 Follow-up Hotfix #6
-LIVE-SERVED admin-homepage.css verification
+VAVA Living — Stage 02 Follow-up Hotfix #7
+Protected PDF Progress — LEFT PADDING POLISH
+LIVE HOSTING / FTP DEPLOYMENT
 
-The PDF upload logic works. The remaining issue is CSS only.
+CURRENT STATUS
+The major clipping/absolute-position issue is now visually fixed on production.
+The protected PDF progress panel is visible and working.
 
-CONFIRMED FROM THE CLIENT'S LIVE BROWSER:
-A fresh no-cache fetch of the loaded admin-homepage.css returned:
-- PATCH 0007 EXISTS: false
-- NEW SELECTOR EXISTS: false
-- OLD ABSOLUTE RULE EXISTS: true
+The ONLY remaining request is a small visual adjustment:
+add more INNER spacing on the LEFT side of the protected-PDF progress panel so the percentage/progress content does not sit too close to the left edge.
 
-Therefore the file copy edited in the previous FTP run is not the copy currently served to the browser, or the public asset is still being served from another origin/cache.
+DO NOT:
+- change PHP
+- change JavaScript
+- change upload behavior
+- change percentages
+- change AJAX/PDF processing
+- change position/height/min-height/overflow logic that is now working
+- change width or outer centering
+- modify unrelated admin styling
 
-DO NOT change PHP/JS/upload logic.
-DO NOT report success based only on an FTP file being edited.
+PATCH TO APPLY
+VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0009-add-left-padding-to-live-pdf-progress.patch
 
-PATCH:
-VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0008-fix-live-served-admin-homepage-progress.patch
+TARGET LIVE FILE
+wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
 
-PUBLIC ASSET TO VERIFY:
-https://thevavaliving.com/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
+IMPORTANT
+Use the SAME live-served admin-homepage.css copy that was proven in the previous step to contain the LIVE-SERVED-ASSET marker and the working protected-PDF override.
+Do not edit another duplicate theme copy.
 
-The currently served asset still contains the generic rule:
-.vava-upload-progress{position:absolute;inset-inline:0;bottom:0;height:4px;background:transparent;overflow:hidden}
+BACKUP FIRST
+Create a new backup next to the verified live-served file:
+admin-homepage.css.bak-stage02-layout7
 
-Find the actual WordPress/theme copy that serves this public asset. Check for duplicate site roots/theme copies on the FTP account instead of assuming the first wp-content path is live.
+REQUIRED CHANGE ONLY
+For:
+body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden])
 
-Before modifying the verified served file create:
-admin-homepage.css.bak-stage02-layout6
+set:
+padding-left: 24px !important;
+padding-right: 16px !important;
 
-Apply Patch 0008 ONLY to the verified served admin-homepage.css.
-The patch contains a unique marker comment:
-Stage 02 Follow-up #6 — LIVE-SERVED-ASSET marker
+This should create a little more breathing room on the LEFT side while preserving the current right-side spacing.
 
-After editing, verify the public asset again with a cache-busting query string. The HTTP response itself must contain both:
-- Stage 02 Follow-up #6 — LIVE-SERVED-ASSET marker
-- [data-vava-upload-progress].is-active:not([hidden])
+DO NOT alter the current working values for:
+- position: relative
+- display: grid
+- width
+- max-width
+- height
+- min-height
+- max-height
+- margin
+- grid rows
+- overflow
+- parent :has() rules
 
-If the public response does not contain them, do not report success. Continue diagnosing the served document root/static cache until the exact served asset is identified, or report the unresolved mapping clearly.
+VALIDATION
+After deployment and hard refresh:
+1. Start a protected PDF upload.
+2. Confirm the progress panel remains fully visible.
+3. Confirm the percentage on the left has visibly more space from the left border.
+4. Confirm the progress track is also inset consistently from the left.
+5. Confirm right-side spacing remains unchanged.
+6. Confirm the panel remains centered and does not become wider/narrower unexpectedly.
+7. Confirm Replace/Delete buttons and the protected-file note stay unchanged.
+8. Confirm PDF upload/replacement still works.
 
-The scoped protected-PDF override must result in:
-- position: relative !important
-- display: grid !important
-- height: auto !important
-- min-height: 72px !important
-- overflow: visible !important
-- full label, percentage and progress track visible
+PUBLIC ASSET CHECK
+Use a cache-busting request to the loaded admin-homepage.css and confirm the response contains:
+Stage 02 Follow-up #7 — visual left inset
 
-The old generic absolute/4px rule may remain for other media controls; the new scoped protected-PDF rule must appear later in the served CSS and win for the protected PDF element.
+REPORT
+1. Exact live file modified.
+2. Backup created.
+3. Whether Patch 0009 applied directly or manually.
+4. Public marker present: true/false.
+5. Left padding computed value.
+6. Right padding computed value.
+7. Visual result of percentage/track spacing.
+8. Confirmation upload still works.
 
-REPORT:
-1. Candidate admin-homepage.css paths found.
-2. Exact path proven to serve the public asset.
-3. Exact file modified.
-4. Backup created.
-5. Whether Patch 0008 applied directly or manually.
-6. Cache-busted public CSS URL checked.
-7. Public marker present: true/false.
-8. Public new selector present: true/false.
-9. Any duplicate docroot/cache mismatch found.
-10. Do not claim visual success unless the public response contains the marker.
-
-STOP after this Stage 02 deployment-path fix.
+STOP after this visual polish.
