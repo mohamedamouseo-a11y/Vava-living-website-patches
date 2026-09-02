@@ -1,0 +1,41 @@
+VAVA Living — Client Fixes Stage 01
+
+Target source repository:
+- mohamedamouseo-a11y/Vava-living-website
+- Base reference: main
+
+IMPORTANT SAFETY / SCOPE RULES
+- DO NOT push, merge, commit, or force-update the source repository main branch.
+- Work only in a disposable/local checkout or a non-main working branch.
+- Apply only the supplied Stage 01 patch.
+- Do not refactor, reformat, rename, or touch unrelated files.
+- Do not modify login behavior, tagline/footer wording, digital product descriptions, Journey Start questions, Journey Impact questions, booking rules, or any other client request in this stage.
+
+GOAL
+Remove the Mid-Journey Questionnaire question:
+- Arabic: كيف كان نشاطك اليومي؟
+- English: How has your daily activity been?
+- Field id: daily_activity
+
+SOURCE FILE
+wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
+
+REQUIRED IMPLEMENTATION
+1. Apply:
+   VAVA-Client-Fixes-Stage-01-Midpoint-Survey/patches/0001-remove-midpoint-daily-activity.patch
+2. Confirm `daily_activity` is removed from the default `midpoint > next_session > fields` questionnaire definition.
+3. Keep the compatibility filter in `vava_booking_questionnaire_settings()` so legacy saved `_vava_booking_questionnaires` metadata cannot restore this retired field.
+4. Preserve historical questionnaire submissions and snapshots. Do not delete or rewrite old answers.
+
+VALIDATION
+- Run `git apply --check` before applying the patch.
+- Run PHP syntax validation on the modified PHP file (`php -l` when PHP CLI is available).
+- Confirm the default Mid-Journey questionnaire no longer contains the `daily_activity` field.
+- Confirm the settings compatibility filter still checks for `daily_activity` intentionally; that occurrence is expected.
+- Confirm all neighboring Mid-Journey questions remain unchanged.
+- Confirm no other source file changed.
+
+EXPECTED RESULT
+The current Mid-Journey questionnaire must stop rendering “كيف كان نشاطك اليومي؟ / How has your daily activity been?” even on installations where an older saved questionnaire configuration still contains that field, while historical submitted data remains intact.
+
+STOP after this stage. Do not proceed to other client fixes.
