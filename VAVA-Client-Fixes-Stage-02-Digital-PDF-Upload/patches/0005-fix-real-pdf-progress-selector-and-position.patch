@@ -1,0 +1,88 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
+--- a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
++++ b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
+@@
++/* Release 1.19.7 — target the real protected-PDF upload state and keep progress visibly inside its card. */
++.vava-selections-admin .vava-protected-pdf-field.is-uploading,
++.vava-selections-admin .vava-protected-pdf-field[data-processing-status="queued"],
++.vava-selections-admin .vava-protected-pdf-field[data-processing-status="processing"],
++.vava-selections-admin .vava-protected-pdf-field[data-processing-status="failed"]{
++  height:auto!important;
++  min-height:0!important;
++  overflow:hidden!important;
++  padding-bottom:18px!important
++}
++.vava-selections-admin .vava-protected-pdf-field.is-uploading>.vava-media-field,
++.vava-selections-admin .vava-protected-pdf-field[data-processing-status="queued"]>.vava-media-field,
++.vava-selections-admin .vava-protected-pdf-field[data-processing-status="processing"]>.vava-media-field,
++.vava-selections-admin .vava-protected-pdf-field[data-processing-status="failed"]>.vava-media-field{
++  display:flex!important;
++  flex-direction:column!important;
++  height:auto!important;
++  min-height:0!important;
++  overflow:visible!important
++}
++.vava-selections-admin .vava-protected-pdf-field.is-uploading .vava-upload-progress:not([hidden]),
++.vava-selections-admin .vava-protected-pdf-field[data-processing-status="queued"] .vava-upload-progress:not([hidden]),
++.vava-selections-admin .vava-protected-pdf-field[data-processing-status="processing"] .vava-upload-progress:not([hidden]),
++.vava-selections-admin .vava-protected-pdf-field[data-processing-status="failed"] .vava-upload-progress:not([hidden]){
++  position:relative!important;
++  inset:auto!important;
++  z-index:2!important;
++  display:grid!important;
++  width:calc(100% - 28px)!important;
++  max-width:calc(100% - 28px)!important;
++  height:auto!important;
++  min-height:72px!important;
++  max-height:none!important;
++  margin:-8px auto 12px!important;
++  padding:12px 16px!important;
++  grid-template-rows:auto 8px!important;
++  grid-auto-rows:max-content!important;
++  align-content:center!important;
++  align-items:center!important;
++  gap:8px!important;
++  overflow:hidden!important;
++  box-sizing:border-box!important;
++  transform:none!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-upload-progress-head{
++  display:grid!important;
++  grid-template-columns:minmax(0,1fr) auto!important;
++  align-items:center!important;
++  width:100%!important;
++  min-width:0!important;
++  min-height:22px!important;
++  margin:0!important;
++  gap:10px!important;
++  line-height:1.35!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-upload-progress-head strong{
++  min-width:0!important;
++  overflow:visible!important;
++  white-space:normal!important;
++  line-height:1.35!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-upload-progress-head span{
++  flex:0 0 auto!important;
++  white-space:nowrap!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-upload-progress-track{
++  display:block!important;
++  width:100%!important;
++  height:8px!important;
++  min-height:8px!important;
++  margin:0!important;
++  align-self:center!important;
++  overflow:hidden!important
++}
++.vava-selections-admin .vava-protected-pdf-field [data-upload-progress-meta]:empty{
++  display:none!important
++}
++.vava-selections-admin .vava-protected-pdf-field .vava-media-actions{
++  position:relative!important;
++  z-index:1!important;
++  flex:0 0 auto!important;
++  margin-top:0!important;
++  padding-top:0!important
++}
