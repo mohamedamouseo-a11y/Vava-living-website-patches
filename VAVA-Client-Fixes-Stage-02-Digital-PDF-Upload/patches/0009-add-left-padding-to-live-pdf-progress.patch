@@ -1,0 +1,9 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
+--- a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
++++ b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
+@@
++/* Stage 02 Follow-up #7 — visual left inset for protected-PDF progress only. */
++body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden]){
++  padding-left:24px!important;
++  padding-right:16px!important
++}
