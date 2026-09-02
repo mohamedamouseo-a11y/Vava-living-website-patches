@@ -1,135 +1,195 @@
-VAVA Living — Stage 02 Follow-up Hotfix #2
-Protected PDF Progress — Center + Unclip
+VAVA Living — Stage 02 Follow-up Hotfix #3
+Protected PDF Progress — REAL DOM SELECTOR + POSITION FIX
 LIVE HOSTING / FTP DEPLOYMENT
 
-IMPORTANT DEPLOYMENT MODE
-You are connected directly to the VAVA Living production hosting through FTP.
-
-The PDF upload/replacement logic is already working correctly.
-The remaining problem is VISUAL CSS LAYOUT ONLY.
+IMPORTANT
+The PDF upload/replacement functionality already works.
+The remaining issue is VISUAL CSS LAYOUT ONLY.
+Previous reports said the issue was fixed, but the client confirmed it is STILL visible on production.
+Do NOT mark this task complete based on static CSS inspection alone.
+You MUST verify the real active DOM and actual element geometry while an upload is running.
 
 DO NOT:
-- clone the GitHub source repository,
-- create a Git branch,
-- create commits on the source repository,
+- clone the source repository,
+- create Git branches,
+- create commits in the source repository,
 - push source changes to GitHub,
 - work in /tmp,
-- re-apply PHP or JavaScript upload logic,
-- change upload limits, AJAX, PDF processing, protected storage, checkout, payments, or access controls.
+- change PHP upload logic,
+- change JavaScript upload percentages or AJAX logic,
+- change PDF processing, storage, checkout, payments, permissions, or unrelated styling.
 
-CURRENT LIVE STATUS
-Stage 02 functional upload fix is already deployed.
-The first layout follow-up (0003) was also deployed, but the progress panel is still visually clipped/too low inside the surrounding product container.
+CONFIRMED REAL DOM / JS STATE
+The live/source JavaScript adds the upload state directly to the actual protected PDF field:
 
-VISIBLE ISSUE
-During an active PDF upload, the progress panel exists and updates, but its content sits too low inside the surrounding rounded container. The status text/percentage can be seen near the lower edge while the progress track and/or other content is partially hidden.
+field.addClass('is-uploading');
 
-The desired result is:
-- the progress panel remains INSIDE the protected-PDF/product container,
-- it is horizontally centered with a small inset from both sides,
-- it is raised slightly compared with its current position,
-- its internal status text, percentage and progress track are vertically centered and fully visible,
-- no ancestor container clips it.
+where field is selected by:
 
-CONFIRMED CSS FINDINGS
-The source CSS contains:
+[data-vava-private-pdf-field]
 
-.vava-selections-admin .vava-selections-product-item{
-  overflow:hidden;
-}
+The real element therefore becomes:
 
-The progress component itself is a CSS grid and the protected PDF field is nested inside that product item. Even after changing the PDF field height to auto, the ancestor overflow rule can still clip visible progress content.
+.vava-protected-pdf-field.is-uploading
 
-The shared progress styles also do not force max-content grid rows/alignment, so if extra vertical space is inherited the progress rows can sit too low instead of staying compact and centered.
+IMPORTANT:
+The previous manual hotfix report referenced:
 
-NEW PATCH TO APPLY
-VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0004-center-unclip-digital-pdf-progress.patch
+.vava-product-protected-file.is-uploading
+
+Do NOT rely on that selector unless you prove that class really exists in the LIVE DOM.
+It is not the selector used by the actual upload JavaScript.
+
+Also, the correct metadata selector is:
+
+[data-upload-progress-meta]
+
+NOT:
+
+[v-data-upload-progress-meta]
+
+CLIENT'S CURRENT VISUAL ISSUE
+The progress/status panel is visually buried too low inside another rounded container.
+The text and percentage can be seen near the lower border, while the progress content appears partially hidden.
+
+Desired result:
+- the inner progress panel stays INSIDE the protected PDF card,
+- it is horizontally centered,
+- it is raised slightly upward,
+- the status text and percentage are vertically centered,
+- the full progress track is visible,
+- all content stays within the surrounding card borders,
+- no clipping occurs.
+
+PATCH TO APPLY
+VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0005-fix-real-pdf-progress-selector-and-position.patch
 
 TARGET LIVE FILE
 wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-selections.css
 
-REQUIRED WORKFLOW
-1. Locate the live active theme:
-   wp-content/themes/vava-living-theme-ar-v1/
+BACKUP
+Before editing create:
 
-2. Before editing, create a NEW backup of the current live CSS (which already includes the previous layout hotfix):
-   assets/css/admin-selections.css.bak-stage02-layout2
+assets/css/admin-selections.css.bak-stage02-layout3
 
-3. Apply ONLY:
-   0004-center-unclip-digital-pdf-progress.patch
+Do not overwrite previous backups.
 
-4. Do not remove the already-applied 0003 hotfix.
+REQUIRED IMPLEMENTATION
+Apply ONLY patch 0005 to the live CSS.
+Keep 0003 and 0004 in place unless a directly conflicting rule must be overridden by the newer 0005 rules.
+Do not remove unrelated CSS.
 
-5. The resulting active progress layout must do all of the following:
-   - stop the containing product item from clipping a visible protected-PDF progress panel,
-   - allow the repeater body and protected PDF field to expose the full progress UI,
-   - keep the visible progress panel in normal flow,
-   - use width: calc(100% - 24px) so the panel is centered inside the outer container with a small inset,
-   - use auto height / no max-height clipping,
-   - keep the panel compact with approximately 62px minimum height,
-   - position it slightly higher than before using the new controlled margin,
-   - center the internal grid content vertically,
-   - use max-content grid rows so the status text and progress track do not stretch into awkward positions,
-   - keep status text + percentage fully visible,
-   - keep the progress track fully visible,
-   - hide the empty metadata row when it has no content,
-   - preserve metadata when it is populated,
-   - keep action buttons and the protected-file note below the progress panel.
+The new rules intentionally target the REAL state selectors:
 
-IMPORTANT SCOPE
-Do NOT modify:
-- inc/digital-products-commerce-vava.php
-- assets/js/admin-digital-products.js
-- upload percentages
-- server/PHP limits
-- AJAX requests
-- protected PDF processing
-- PDF conversion
-- storage/security
-- product data/content
-- payment/checkout
-- customer permissions
-- unrelated admin CSS
+.vava-protected-pdf-field.is-uploading
+.vava-protected-pdf-field[data-processing-status="queued"]
+.vava-protected-pdf-field[data-processing-status="processing"]
+.vava-protected-pdf-field[data-processing-status="failed"]
 
-If the patch does not apply automatically because the live file has drifted, inspect ONLY the current live protected-PDF rules and reproduce the same CSS behavior manually. Do not replace the whole CSS file and do not remove newer unrelated rules.
+The progress panel must:
+- remain in normal flow,
+- be width calc(100% - 28px),
+- be centered using auto side margins,
+- move upward slightly with margin-top around -8px,
+- have enough internal height (about 72px minimum),
+- keep status row and progress track visible,
+- use a two-column status row: label + percent,
+- use a full-width 8px progress track,
+- hide only an EMPTY [data-upload-progress-meta] row,
+- keep Replace/Delete buttons below the progress panel.
 
-LIVE VISUAL VALIDATION
-After applying the patch:
+LIVE DOM VERIFICATION — MANDATORY
+Do not claim success without performing these checks while an upload is ACTIVELY running.
 
-1. Hard refresh the WordPress admin page.
-2. Open the VAVA Selections digital-product editor.
-3. Choose/replace a protected PDF and start an upload.
-4. While upload is active, inspect the progress panel visually.
-5. Confirm the inner progress panel is centered horizontally inside the surrounding rounded container.
-6. Confirm there is visible spacing on both left and right sides instead of the panel touching the outer edges.
-7. Confirm the panel sits slightly higher and is not buried at the bottom edge.
-8. Confirm all of these are visible at the same time:
-   - جارٍ رفع ملف PDF… / upload status label
-   - percentage
-   - full progress track/bar
-9. Confirm the text is vertically centered in the progress panel rather than sitting against the bottom border.
-10. Confirm the progress track is below the status row and not clipped.
-11. Confirm Replace/Delete buttons remain below the progress panel.
+1. Start replacing/uploading a protected PDF in the live WordPress admin.
+
+2. Confirm the actual active field exists:
+
+document.querySelectorAll('.vava-protected-pdf-field.is-uploading').length
+
+Expected while network upload is active: at least 1.
+
+3. Check whether the old selector from the previous report exists:
+
+document.querySelectorAll('.vava-product-protected-file.is-uploading').length
+
+Report the result. Do not assume it exists.
+
+4. Obtain the active field and progress element:
+
+const field = document.querySelector('.vava-protected-pdf-field.is-uploading') || document.querySelector('.vava-protected-pdf-field[data-processing-status="queued"], .vava-protected-pdf-field[data-processing-status="processing"], .vava-protected-pdf-field[data-processing-status="failed"]');
+const progress = field && field.querySelector('[data-vava-upload-progress]');
+
+5. Confirm the progress element is actually visible:
+- hidden attribute must be absent while active,
+- getComputedStyle(progress).display must not be 'none'.
+
+6. Capture computed styles for the progress element:
+- position
+- width
+- height
+- marginTop
+- overflow
+- display
+- alignContent
+
+7. GEOMETRY CHECK — REQUIRED
+Use getBoundingClientRect():
+
+const fieldRect = field.getBoundingClientRect();
+const progressRect = progress.getBoundingClientRect();
+
+Verify:
+- progressRect.top >= fieldRect.top
+- progressRect.bottom <= fieldRect.bottom
+- progressRect.left > fieldRect.left
+- progressRect.right < fieldRect.right
+
+The progress panel must physically fit inside the visible protected PDF field.
+
+8. Inspect the status row and track:
+
+const head = progress.querySelector('.vava-upload-progress-head');
+const track = progress.querySelector('.vava-upload-progress-track');
+
+Confirm both have non-zero width and height and both rectangles are fully inside progressRect.
+
+9. Confirm these are simultaneously visible:
+- upload status label
+- percentage
+- progress track/bar
+
+10. Confirm the text is not touching or crossing the bottom border.
+
+11. Confirm Replace/Delete buttons remain visually below the progress panel.
+
 12. Confirm the protected-file note remains visible.
-13. Confirm the product card has no clipping while progress is visible.
-14. Confirm there is no horizontal overflow.
-15. Test at normal desktop WordPress admin width and responsive/admin mobile width if available.
-16. Confirm the PDF still uploads/replaces successfully.
 
-CACHE
-If no server/admin CSS cache control is available through FTP, use a hard browser refresh during validation and report that.
+13. Confirm no horizontal overflow.
+
+14. Hard refresh the admin page after deployment before final visual testing.
+
+15. Test at desktop admin width. Test responsive/admin mobile width if available.
+
+IMPORTANT SUCCESS CONDITION
+Static checks such as "rule exists in admin-selections.css" are NOT sufficient.
+The task is successful only if the actual LIVE DOM geometry confirms the visible progress panel fits inside its protected PDF field and the client-visible clipping is gone.
 
 REPORT
 Return:
 1. Exact live file modified.
-2. Exact backup file created.
-3. Whether 0004 applied directly or was reproduced manually.
-4. Whether the ancestor product-card overflow was the remaining clipping source on live.
-5. Desktop visual result.
-6. Responsive/mobile result if available.
-7. Confirmation that status text, percentage and progress track are all fully visible and centered.
-8. Confirmation that buttons/note remain correctly below the progress panel.
-9. Confirmation that PDF upload/replacement behavior remains unchanged.
+2. Backup created.
+3. Whether 0005 applied directly or manually.
+4. document.querySelectorAll('.vava-protected-pdf-field.is-uploading').length during upload.
+5. document.querySelectorAll('.vava-product-protected-file.is-uploading').length during upload.
+6. Computed progress display/position/width/height/marginTop.
+7. fieldRect dimensions.
+8. progressRect dimensions.
+9. Whether progressRect is fully inside fieldRect on all four sides.
+10. Whether head and track both have non-zero visible rectangles.
+11. Desktop visual result.
+12. Responsive result if available.
+13. Confirmation PDF upload/replacement remains functional.
 
-STOP after this Stage 02 layout follow-up.
+STOP after this hotfix.
 Do not proceed to another client fix.
