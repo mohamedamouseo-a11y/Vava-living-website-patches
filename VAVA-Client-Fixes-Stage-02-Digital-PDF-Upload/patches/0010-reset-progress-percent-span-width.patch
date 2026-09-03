@@ -1,0 +1,19 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
+--- a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
++++ b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
+@@
++/* Stage 02 Follow-up #10 — reset the percentage span inherited from the generic upload bar rule. */
++body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden]) [data-upload-progress-percent]{
++  display:block!important;
++  width:auto!important;
++  min-width:max-content!important;
++  height:auto!important;
++  min-height:0!important;
++  max-height:none!important;
++  margin:0!important;
++  padding:0!important;
++  background:transparent!important;
++  overflow:visible!important;
++  box-sizing:border-box!important;
++  white-space:nowrap!important
++}
