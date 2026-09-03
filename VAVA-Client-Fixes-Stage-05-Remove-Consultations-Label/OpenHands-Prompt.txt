@@ -1,0 +1,199 @@
+VAVA Living — Stage 05
+Remove “للاستشارات” and keep “باختصار” only
+LIVE HOSTING / FTP DEPLOYMENT
+
+IMPORTANT DEPLOYMENT MODE
+
+You are connected directly to the VAVA Living PRODUCTION hosting through FTP.
+Work on the live WordPress installation only.
+
+DO NOT:
+- clone GitHub
+- create a local repository
+- create a Git branch
+- commit
+- push
+- work from /tmp as a deployment copy
+- globally replace Arabic words
+- modify unrelated copy
+- modify English unless the same live field is explicitly bilingual and the client request proves it is required
+- touch booking/payment/digital-product logic
+
+CLIENT REQUEST
+
+Remove only the visible word/label:
+
+للاستشارات
+
+so that the affected visible phrase/heading ends up showing only:
+
+باختصار
+
+Do NOT remove “باختصار”.
+Do NOT rewrite the full sentence/section.
+Do NOT make a site-wide replacement of “للاستشارات”.
+
+SOURCE REVIEW BEFORE LIVE WORK
+
+The exact live phrase was not found in the current GitHub theme defaults that were inspected, including the main Homepage/Paths defaults. This strongly suggests that the visible text may be stored in WordPress post meta/options/database rather than being a current hard-coded default.
+
+Therefore Stage 05 is DIAGNOSTIC-FIRST.
+Do not guess a file or meta key.
+
+STEP 1 — FIND THE EXACT LIVE SOURCE
+
+Search the deployed theme first under:
+
+wp-content/themes/vava-living-theme-ar-v1/
+
+for these exact UTF-8 strings:
+
+للاستشارات
+باختصار
+
+Search PHP, HTML, JSON and JS files only as needed.
+Report every exact match with:
+- full live path
+- line/context
+- whether it is rendered frontend copy, admin label, default value, or unrelated text
+
+IMPORTANT:
+Do not edit anything yet.
+
+STEP 2 — IF THE EXACT VISIBLE COPY IS NOT IN THE THEME
+
+Identify the WordPress page/section where the client-visible phrase appears and inspect its stored content safely.
+
+Use available WordPress tooling (WP-CLI if installed, otherwise a safe one-time PHP/read-only inspection method) to locate the exact post meta/option containing either:
+
+للاستشارات
+
+or the combined visible text containing:
+
+باختصار
+
+Do not search/replace the whole database.
+Do not alter serialized data manually with raw SQL string replacement.
+
+Preferred safe workflow:
+1. Identify the page ID/post type.
+2. List only that page’s relevant VAVA meta keys.
+3. Find the exact field/value producing the visible label.
+4. Record the exact OLD value before modification.
+
+If the value is inside a serialized PHP array, update it through WordPress APIs/WP-CLI/PHP so serialization remains valid.
+
+STEP 3 — PROVE THE TARGET BEFORE EDITING
+
+Before changing anything, report internally which exact source wins:
+
+CASE A — THEME FILE
+- exact live file path
+- exact current line/value
+
+CASE B — POST META
+- page ID
+- meta key
+- exact current value
+
+CASE C — OPTION
+- option name
+- exact current value
+
+The target must contain the client-visible “للاستشارات” associated with “باختصار”.
+
+If you cannot prove the exact source, STOP and report “TARGET NOT PROVEN”.
+Do not make a speculative change.
+
+STEP 4 — BACKUP THE EXACT TARGET
+
+If it is a theme file:
+create a unique backup next to it, for example:
+
+<filename>.bak-stage05-{timestamp}
+
+If it is post meta/option:
+export/save the exact old key + value to a small backup text/JSON file under a non-public-safe admin/backup location already used by this project, or report the exact old value verbatim in the execution report before changing it.
+
+Do not overwrite previous backups.
+
+STEP 5 — APPLY THE SMALLEST POSSIBLE FIX
+
+Required final Arabic UI:
+
+باختصار
+
+Remove ONLY:
+
+للاستشارات
+
+from the proven field/source.
+
+Examples of acceptable transformations:
+
+“باختصار للاستشارات” → “باختصار”
+“للاستشارات — باختصار” → “باختصار”
+
+But use the ACTUAL live value; do not force one of these examples if the punctuation/order differs.
+Clean any orphan punctuation/extra whitespace caused specifically by removing that word.
+
+DO NOT change surrounding approved copy.
+
+If the UI is assembled from two separate fields/elements and one field contains only “للاستشارات”, blank/remove only that field while preserving the “باختصار” field.
+
+STEP 6 — VALIDATE
+
+If PHP was modified:
+run PHP syntax validation on the exact modified file.
+
+If JSON was modified:
+validate JSON.
+
+If no theme file was changed and only WordPress content/meta was updated:
+confirm the stored value can be read back correctly through WordPress.
+
+STEP 7 — LIVE FRONTEND VERIFICATION — MANDATORY
+
+Open/fetch the actual affected live page after the change with cache bypass where possible.
+
+Confirm visually/HTML-wise:
+- “باختصار” is still present
+- the unwanted “للاستشارات” is no longer present in that specific target heading/label
+- surrounding copy is unchanged
+- layout is not broken
+
+If a cache layer is present, purge/clear only the relevant WordPress/page cache if accessible and verify again.
+
+Do NOT report success from FTP/database state alone.
+
+MANDATORY SUCCESS CONDITIONS
+
+1. Exact source of the visible phrase was proven before editing.
+2. Backup/old value captured.
+3. Only the proven target was changed.
+4. Final visible target reads “باختصار”.
+5. “للاستشارات” is removed from that target only.
+6. No unrelated Arabic copy changed.
+7. English remains unchanged unless it was necessarily tied to the same proven field and explicitly reported.
+8. Live frontend verification passed.
+
+REPORT
+
+Return exactly:
+1. Where the phrase was actually stored: theme file / post meta / option.
+2. Exact file path OR page ID + meta key OR option name.
+3. Exact OLD value.
+4. Exact NEW value.
+5. Backup created / old value captured.
+6. Files modified, if any.
+7. Syntax/data validation result.
+8. Live page used for verification.
+9. “باختصار” present after change: true/false.
+10. Target “للاستشارات” absent after change: true/false.
+11. Surrounding copy unchanged: true/false.
+12. English unchanged: true/false.
+
+SUCCESS IS NOT ALLOWED if the exact live source was not proven or if verification was only based on an FTP file inspection.
+
+STOP after Stage 05.
+Do not proceed to Stage 06.
