@@ -1,0 +1,34 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/inc/paths-vava.php b/wp-content/themes/vava-living-theme-ar-v1/inc/paths-vava.php
+--- a/wp-content/themes/vava-living-theme-ar-v1/inc/paths-vava.php
++++ b/wp-content/themes/vava-living-theme-ar-v1/inc/paths-vava.php
+@@
+ function vava_paths_sections( string $lang ): array {
+ 	if ( 'en' === $lang ) {
+ 		return array(
+ 			'hero'       => 'Hero',
+ 			'packages'   => 'Consultations',
+-			'questions'  => 'Frequently asked questions',
+ 			'comparison' => 'Package comparison',
+ 			'future'     => 'Upcoming pathways',
+ 			'faq'        => 'Frequently asked questions',
+ 			'closing'    => 'Closing invitation',
+ 		);
+ 	}
+ 	return array(
+ 		'hero'       => 'الهيرو',
+ 		'packages'   => 'الاستشارات',
+-		'questions'  => 'الأسئلة الشائعة',
+ 		'comparison' => 'مقارنة الباقات',
+ 		'future'     => 'المسارات القادمة',
+ 		'faq'        => 'الأسئلة الشائعة',
+ 		'closing'    => 'الدعوة الختامية',
+ 	);
+ }
+@@
+-				<?php elseif ( 'questions' === $section ) : ?>
+-					<div class="vava-paths-admin-faq-preview" data-question-preview-canvas>
+-						<header><h3><?php echo esc_html( $is_en ? 'Frequently asked questions' : 'أسئلة شائعة' ); ?></h3><p><?php echo esc_html( $is_en ? 'The questions below appear under the session categories in stage two.' : 'تظهر الأسئلة التالية أسفل أقسام الجلسات في المرحلة الثانية.' ); ?></p></header>
+-						<div class="vava-paths-preview-faq" data-question-preview-faq><?php foreach ( $faq_items as $index => $item ) : ?><article><div class="vava-paths-preview-faq-question"><span><?php echo esc_html( (string) ( $item['question'] ?? '' ) ); ?></span><b><?php echo 0 === $index ? '−' : '+'; ?></b></div><?php if ( 0 === $index ) : ?><div class="vava-paths-preview-faq-answer"><?php echo vava_richtext_output( (string) ( $item['answer'] ?? '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><?php endif; ?></article><?php endforeach; ?></div>
+-					</div>
+ 				<?php elseif ( 'faq' === $section ) : ?>
+ 					<div class="vava-paths-admin-faq-preview"><header><h3><?php echo esc_html( $is_en ? 'Frequently asked questions' : 'الأسئلة الشائعة' ); ?></h3><p><?php echo esc_html( $is_en ? 'These questions appear under the session categories in stage two.' : 'تظهر هذه الأسئلة أسفل أقسام الجلسات في المرحلة الثانية.' ); ?></p></header><div class="vava-paths-preview-faq"><?php foreach ( $faq_items as $index => $item ) : ?><article><div class="vava-paths-preview-faq-question"><span data-paths-preview="faq.items.<?php echo esc_attr( (string) $index ); ?>.question"><?php echo esc_html( (string) ( $item['question'] ?? '' ) ); ?></span><b><?php echo 0 === $index ? '−' : '+'; ?></b></div><?php if ( 0 === $index ) : ?><div class="vava-paths-preview-faq-answer" data-paths-preview-html="faq.items.<?php echo esc_attr( (string) $index ); ?>.answer"><?php echo vava_richtext_output( (string) ( $item['answer'] ?? '' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></div><?php endif; ?></article><?php endforeach; ?></div></div>
