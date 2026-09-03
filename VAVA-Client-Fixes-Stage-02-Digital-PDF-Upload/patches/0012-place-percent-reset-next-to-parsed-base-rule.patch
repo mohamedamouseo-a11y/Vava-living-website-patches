@@ -1,0 +1,21 @@
+diff --git a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
+--- a/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
++++ b/wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
+@@
+ .vava-upload-progress span{display:block;width:0;height:100%;background:var(--vava-admin-accent);transition:width .16s ease}
++
++/* Stage 02 Follow-up #12 — parsed-location percentage reset. Keep this directly after the legacy span rule. */
++.vava-upload-progress [data-upload-progress-percent]{
++  display:block!important;
++  width:auto!important;
++  min-width:max-content!important;
++  height:auto!important;
++  min-height:0!important;
++  max-height:none!important;
++  margin:0!important;
++  padding:0!important;
++  background:transparent!important;
++  overflow:visible!important;
++  box-sizing:border-box!important;
++  white-space:nowrap!important
++}
