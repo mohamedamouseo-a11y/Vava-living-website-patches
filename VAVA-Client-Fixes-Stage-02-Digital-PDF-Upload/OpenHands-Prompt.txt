@@ -1,84 +1,138 @@
-VAVA Living — Stage 02 Follow-up Hotfix #7
-Protected PDF Progress — LEFT PADDING POLISH
+VAVA Living — Stage 02 Follow-up Hotfix #10
+Protected PDF Progress — RESET PERCENTAGE SPAN WIDTH
 LIVE HOSTING / FTP DEPLOYMENT
 
 CURRENT STATUS
-The major clipping/absolute-position issue is now visually fixed on production.
-The protected PDF progress panel is visible and working.
+The protected PDF upload itself works and the main progress panel is now visible.
+A new, more accurate client screenshot shows that the TRACK inset is correct, but the percentage text (for example 11% / 88%) still sits on the extreme left edge.
 
-The ONLY remaining request is a small visual adjustment:
-add more INNER spacing on the LEFT side of the protected-PDF progress panel so the percentage/progress content does not sit too close to the left edge.
+CONFIRMED CSS CAUSE
+The live admin-homepage.css contains a generic rule used by older/simple upload bars:
+
+.vava-upload-progress span{
+  display:block;
+  width:0;
+  height:100%;
+  background:var(--vava-admin-accent);
+  ...
+}
+
+The protected PDF percentage is ALSO a span:
+[data-upload-progress-percent]
+
+So even though the protected PDF HEAD ROW has the correct inner inset, the percentage span itself still inherits width:0 / height:100% / background behavior from the generic rule. Its text then visually overflows outside its intended grid cell, which is why the percentage appears against the far-left panel border while the progress track is correctly inset.
 
 DO NOT:
-- change PHP
-- change JavaScript
-- change upload behavior
-- change percentages
-- change AJAX/PDF processing
-- change position/height/min-height/overflow logic that is now working
-- change width or outer centering
-- modify unrelated admin styling
+- modify PHP
+- modify JavaScript
+- modify upload logic
+- modify percentages
+- modify AJAX/PDF processing
+- modify the outer progress panel geometry
+- modify the already-correct track inset
+- globally remove or rewrite .vava-upload-progress span because other homepage/media upload controls may depend on it
+- modify unrelated CSS
 
 PATCH TO APPLY
-VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0009-add-left-padding-to-live-pdf-progress.patch
+VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0010-reset-progress-percent-span-width.patch
 
 TARGET LIVE FILE
 wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
 
 IMPORTANT
-Use the SAME live-served admin-homepage.css copy that was proven in the previous step to contain the LIVE-SERVED-ASSET marker and the working protected-PDF override.
-Do not edit another duplicate theme copy.
+Use the SAME proven live-served admin-homepage.css copy that already contains the LIVE-SERVED-ASSET marker and the Stage 02 protected-PDF overrides.
 
 BACKUP FIRST
-Create a new backup next to the verified live-served file:
-admin-homepage.css.bak-stage02-layout7
+Create a new backup next to the actual live-served file:
+admin-homepage.css.bak-stage02-layout10
 
 REQUIRED CHANGE ONLY
-For:
-body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden])
+Add a scoped reset for the actual percentage element:
 
-set:
-padding-left: 24px !important;
-padding-right: 16px !important;
+body.vava-advanced-page-editor .vava-selections-admin [data-vava-upload-progress].is-active:not([hidden]) [data-upload-progress-percent]
 
-This should create a little more breathing room on the LEFT side while preserving the current right-side spacing.
+It must reset the generic span rule using:
 
-DO NOT alter the current working values for:
-- position: relative
-- display: grid
-- width
-- max-width
-- height
-- min-height
-- max-height
-- margin
-- grid rows
-- overflow
-- parent :has() rules
+display: block !important;
+width: auto !important;
+min-width: max-content !important;
+height: auto !important;
+min-height: 0 !important;
+max-height: none !important;
+margin: 0 !important;
+padding: 0 !important;
+background: transparent !important;
+overflow: visible !important;
+box-sizing: border-box !important;
+white-space: nowrap !important;
 
-VALIDATION
-After deployment and hard refresh:
-1. Start a protected PDF upload.
-2. Confirm the progress panel remains fully visible.
-3. Confirm the percentage on the left has visibly more space from the left border.
-4. Confirm the progress track is also inset consistently from the left.
-5. Confirm right-side spacing remains unchanged.
-6. Confirm the panel remains centered and does not become wider/narrower unexpectedly.
-7. Confirm Replace/Delete buttons and the protected-file note stay unchanged.
-8. Confirm PDF upload/replacement still works.
+Do NOT change the current .vava-upload-progress-head width/margin-inline.
+Do NOT change the current .vava-upload-progress-track width/margin-inline.
+
+VISUAL GOAL
+The progress head row already has a 16px inner inset on both sides.
+After resetting the percentage span, the percentage itself must stay INSIDE that inset instead of painting outside its zero-width grid cell.
+
+Expected layout:
+
+|  11%                         جارٍ رفع ملف PDF...  |
+|  [=========== progress track =================]   |
+
+Both the percentage and the track should visually begin from the same left inset area, and the Arabic label should remain inset from the right.
+
+LIVE VALIDATION
+After deployment and a hard refresh:
+1. Start an actual protected PDF upload.
+2. Inspect the visible [data-upload-progress-percent] element.
+3. Confirm computed width is NOT 0px.
+4. Confirm computed height is normal text height, not 100% inherited from the generic span rule.
+5. Confirm computed background is transparent.
+6. Confirm the percentage is visually inside the same left inset used by the head row.
+7. Confirm the progress track remains unchanged and correctly inset.
+8. Confirm the Arabic upload label remains correctly inset from the right.
+9. Confirm the outer panel remains centered and fully visible.
+10. Confirm PDF upload/replacement still works.
+
+BROWSER CONSOLE CHECK
+During upload run:
+
+const p = document.querySelector('[data-vava-upload-progress].is-active:not([hidden]) [data-upload-progress-percent]');
+const cs = getComputedStyle(p);
+const r = p.getBoundingClientRect();
+const head = p.closest('.vava-upload-progress-head');
+const hr = head.getBoundingClientRect();
+console.log({
+  width: cs.width,
+  height: cs.height,
+  background: cs.backgroundColor,
+  percentLeft: r.left,
+  percentRight: r.right,
+  headLeft: hr.left,
+  headRight: hr.right,
+  insideHead: r.left >= hr.left && r.right <= hr.right
+});
+
+MANDATORY PASS:
+- width !== '0px'
+- background must not be the upload accent fill
+- insideHead === true
 
 PUBLIC ASSET CHECK
-Use a cache-busting request to the loaded admin-homepage.css and confirm the response contains:
-Stage 02 Follow-up #7 — visual left inset
+Fetch the live admin-homepage.css with a cache-busting query and confirm it contains:
+Stage 02 Follow-up #10 — reset the percentage span
 
 REPORT
 1. Exact live file modified.
 2. Backup created.
-3. Whether Patch 0009 applied directly or manually.
+3. Whether 0010 applied directly or manually.
 4. Public marker present: true/false.
-5. Left padding computed value.
-6. Right padding computed value.
-7. Visual result of percentage/track spacing.
-8. Confirmation upload still works.
+5. Computed percentage width.
+6. Computed percentage height.
+7. Computed percentage background.
+8. percentLeft / percentRight.
+9. headLeft / headRight.
+10. insideHead true/false.
+11. Visual result.
+12. Confirmation PDF upload still works.
 
-STOP after this visual polish.
+STOP after this fix.
