@@ -1,0 +1,231 @@
+VAVA Living — Stage 06
+Remove “نبدأ من الداخل.” and keep the following sentence
+LIVE HOSTING / FTP DEPLOYMENT
+
+IMPORTANT DEPLOYMENT MODE
+
+You are connected directly to the VAVA Living PRODUCTION hosting through FTP.
+Work on the live WordPress installation only.
+
+DO NOT:
+- clone GitHub
+- create a local repository
+- create a Git branch
+- commit
+- push
+- use /tmp as a deployment target
+- perform global string replacement
+- edit unrelated Arabic or English copy
+- touch booking, payment, digital products, Paths hero, or unrelated CSS/JS
+
+CLIENT REQUEST
+
+Remove ONLY this visible Arabic sentence/line when it appears in the relevant live section:
+
+نبدأ من الداخل.
+
+KEEP this sentence visible and unchanged:
+
+لأن التغيير الحقيقي يبدأ من الداخل… ويكبر معك، على مهلك.
+
+Do not rewrite the kept sentence.
+Do not remove the whole block/section.
+Do not globally remove the words “الداخل” or “يبدأ”.
+
+SOURCE REVIEW
+
+The exact requested Arabic strings were not found in the currently inspected GitHub main source.
+Therefore Stage 06 is DIAGNOSTIC-FIRST on LIVE hosting.
+Do not guess the source.
+
+STEP 1 — SEARCH THE DEPLOYED THEME
+
+Search under:
+
+wp-content/themes/vava-living-theme-ar-v1/
+
+for these exact/near-exact UTF-8 forms:
+
+نبدأ من الداخل
+نبدأ من الداخل.
+يبدأ من الداخل
+التغيير الحقيقي يبدأ من الداخل
+ويكبر معك
+على مهلك
+
+Also check punctuation variants:
+- Arabic/English full stop
+- Unicode ellipsis …
+- three dots ...
+- non-breaking spaces / extra whitespace
+
+Search relevant PHP, HTML, JSON, JS and content/data files.
+
+For every relevant match report:
+- full live file path
+- exact surrounding value/context
+- whether it is frontend copy, default value, migration text, admin label, or unrelated text
+
+DO NOT EDIT YET.
+
+STEP 2 — IF NOT FOUND IN THE THEME, SEARCH WORDPRESS DATA SAFELY
+
+Use WP-CLI if available, otherwise a safe WordPress/PHP inspection method.
+
+Search only through WordPress APIs/data reads for the relevant phrases in:
+- published/draft/private page content/title/excerpt
+- post meta
+- options
+- serialized arrays handled through WordPress APIs
+
+Pay special attention to VAVA custom page meta and content arrays.
+
+Search both the removable sentence and the kept sentence, including partial anchors:
+
+نبدأ من الداخل
+التغيير الحقيقي
+ويكبر معك
+على مهلك
+
+Do NOT:
+- run a database-wide raw SQL replacement
+- alter serialized strings with manual SQL
+- update any data until the exact source is proven
+
+STEP 3 — FIND THE LIVE PAGE/SECTION
+
+If either phrase is found, identify:
+- page ID / post type
+- page title / slug
+- exact live URL
+- exact section/field where the text renders
+
+If the removable phrase is visible on a public page but source search is inconclusive, inspect the rendered HTML/DOM and trace the nearest unique text/section class or data attribute back to its source before editing.
+
+STEP 4 — PROVE THE TARGET BEFORE EDITING
+
+Before any change, establish ONE exact target:
+
+CASE A — THEME FILE
+- exact live file path
+- exact current line/value
+
+CASE B — POST META
+- page ID
+- meta key
+- exact current value
+
+CASE C — OPTION
+- option name
+- exact current value
+
+CASE D — POST CONTENT / BLOCK CONTENT
+- page ID
+- exact current content fragment
+
+The proven source MUST contain the removable line or be unquestionably responsible for rendering it next to/with the kept sentence.
+
+If the exact target cannot be proven:
+
+STOP.
+Report exactly:
+
+STAGE 06 — TARGET NOT PROVEN
+
+Make NO edits.
+
+If the removable sentence is already absent from the live frontend and the kept sentence is present, STOP and report:
+
+STAGE 06 — ALREADY RESOLVED / TARGET NOT PRESENT
+
+Make NO edits.
+
+STEP 5 — BACKUP THE EXACT TARGET
+
+If a theme file:
+Create a unique backup beside it:
+
+<filename>.bak-stage06-{timestamp}
+
+Do not overwrite an existing backup.
+
+If WordPress data:
+Record/export the exact OLD key/value/content before changing it.
+
+STEP 6 — APPLY THE SMALLEST POSSIBLE FIX
+
+Remove ONLY:
+
+نبدأ من الداخل.
+
+Preserve exactly:
+
+لأن التغيير الحقيقي يبدأ من الداخل… ويكبر معك، على مهلك.
+
+If both are stored in one string/block:
+- remove only the first sentence/line
+- clean only the whitespace or orphan line break caused by that removal
+- preserve the second sentence exactly
+
+If they are separate fields/elements:
+- blank/remove only the field/element containing “نبدأ من الداخل.”
+- preserve the field/element containing the kept sentence
+
+Do not change neighboring approved content.
+
+STEP 7 — VALIDATE DATA/SYNTAX
+
+If PHP changed:
+run PHP syntax validation.
+
+If JSON changed:
+validate JSON.
+
+If WordPress meta/option/content changed:
+read it back through WordPress and verify the value/serialization is valid.
+
+STEP 8 — MANDATORY LIVE FRONTEND VERIFICATION
+
+Use the exact affected LIVE URL with cache-busting / cache clear where available.
+
+Confirm on the rendered page:
+
+1. “نبدأ من الداخل.” is absent from the target section.
+2. “لأن التغيير الحقيقي يبدأ من الداخل… ويكبر معك، على مهلك.” is still present and unchanged.
+3. The surrounding section content remains intact.
+4. No empty heading, duplicate punctuation, or broken spacing remains.
+5. English content is unchanged unless the same proven field structurally requires a non-content adjustment; do not alter English wording.
+
+Do NOT report success from FTP/database inspection alone.
+
+MANDATORY SUCCESS CONDITIONS
+
+- exact live source proven before edit
+- backup/old value captured
+- only the proven target changed
+- removable line absent on live frontend
+- kept sentence present and unchanged on live frontend
+- surrounding copy unchanged
+- layout not broken
+- English wording unchanged
+
+REPORT
+
+Return:
+
+1. Stage status: APPLIED / ALREADY RESOLVED / TARGET NOT PROVEN.
+2. Exact live source type: theme file / post meta / option / post content.
+3. Exact file path OR page ID + meta key/field.
+4. Exact live URL verified.
+5. Exact OLD value/fragment.
+6. Exact NEW value/fragment, if changed.
+7. Backup created / old value captured.
+8. Files/data modified.
+9. Syntax/data validation result.
+10. “نبدأ من الداخل.” absent from target: true/false.
+11. Kept sentence present unchanged: true/false.
+12. Surrounding copy unchanged: true/false.
+13. English wording unchanged: true/false.
+
+STOP after Stage 06.
+Do not proceed to Stage 07.
