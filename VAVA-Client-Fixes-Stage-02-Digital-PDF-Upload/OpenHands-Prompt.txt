@@ -1,13 +1,23 @@
-VAVA Living — Stage 02 Follow-up Hotfix #11
-Protected PDF Progress — DIRECT PERCENT SELECTOR WITHOUT MISSING WRAPPER
+VAVA Living — Stage 02 Follow-up Hotfix #12
+Protected PDF Progress — PLACE RESET NEXT TO PARSED BASE RULE
 LIVE HOSTING / FTP DEPLOYMENT
 
 CURRENT STATUS
-The protected PDF upload works. The progress panel and track are visible. The remaining issue is ONLY the percentage text (11%, 88%, etc.) still sticking to the far-left edge.
+The protected PDF upload itself works.
+The progress panel and track are visible.
+The only remaining visual problem is the percentage text (11%, 88%, etc.) sitting against the far-left edge.
 
-LIVE DEVTOOLS PROOF
-The client inspected all matched CSS rules for the real [data-upload-progress-percent] node.
-Only ONE matching rule appeared:
+LIVE BROWSER PROOF
+The client ran a CSSOM test on the real percentage element.
+Results:
+- bodyHasAdvancedClass: true
+- selectorMatchesRealElement: true
+- selectorFindsElement: 1
+- cssomPercentRuleFound: false
+
+This proves the percentage selector itself is valid and matches the real DOM, BUT the #11 CSS rule is not entering the browser CSSOM at all.
+
+The live matched rule that IS parsed and active is:
 
 .vava-upload-progress span {
   width: 0;
@@ -15,76 +25,108 @@ Only ONE matching rule appeared:
   background: var(--vava-admin-accent);
 }
 
-The Stage 02 #10 reset rule did NOT appear in matched rules at all.
+Therefore do NOT append another rule at the end of the same potentially malformed CSS section.
 
-Therefore this is NOT a specificity problem. The #10 selector itself does not match the real DOM.
-The likely non-existent ancestor is:
-.vava-selections-admin
+NEW STRATEGY
+Place the percentage reset immediately after the already-parsed legacy base rule:
 
-Do NOT keep adding more padding.
-Do NOT add more specificity to a selector that does not match.
+.vava-upload-progress span{...}
+
+This guarantees the reset appears before any later syntax/parsing problem in the stylesheet.
 
 DO NOT:
 - modify PHP
 - modify JavaScript
-- modify upload logic/percentages
+- modify upload logic
+- modify percentages
 - modify AJAX/PDF processing
-- modify outer panel geometry
-- modify the already-correct track/head inset
-- globally remove .vava-upload-progress span
+- change the working outer progress panel
+- change the working head/track inset
+- globally remove the legacy .vava-upload-progress span rule
+- append this fix only at EOF
 - modify unrelated CSS
 
 PATCH TO APPLY
-VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0011-direct-percent-selector-without-missing-wrapper.patch
+VAVA-Client-Fixes-Stage-02-Digital-PDF-Upload/patches/0012-place-percent-reset-next-to-parsed-base-rule.patch
 
 TARGET LIVE FILE
 wp-content/themes/vava-living-theme-ar-v1/assets/css/admin-homepage.css
 
-USE THE SAME LIVE-SERVED COPY
-Use the exact admin-homepage.css already proven by the LIVE-SERVED-ASSET/public HTTP checks.
+USE THE SAME PROVEN LIVE-SERVED FILE
+Use the exact live-served admin-homepage.css already verified via public HTTP checks.
 
 BACKUP FIRST
 Create:
-admin-homepage.css.bak-stage02-layout11
+admin-homepage.css.bak-stage02-layout12
 
-REQUIRED FIX
-Add the direct selector WITHOUT .vava-selections-admin:
+REQUIRED CHANGE
+Locate the actual parsed legacy rule in the LIVE file:
 
-body.vava-advanced-page-editor [data-vava-upload-progress].is-active:not([hidden]) [data-upload-progress-percent]
+.vava-upload-progress span{display:block;width:0;height:100%;background:var(--vava-admin-accent);transition:width .16s ease}
 
-with:
+Immediately AFTER that rule add:
 
-display:block!important;
-width:auto!important;
-min-width:max-content!important;
-height:auto!important;
-min-height:0!important;
-max-height:none!important;
-margin:0!important;
-padding:0!important;
-background:transparent!important;
-overflow:visible!important;
-box-sizing:border-box!important;
-white-space:nowrap!important;
+/* Stage 02 Follow-up #12 — parsed-location percentage reset. Keep this directly after the legacy span rule. */
+.vava-upload-progress [data-upload-progress-percent]{
+  display:block!important;
+  width:auto!important;
+  min-width:max-content!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+  white-space:nowrap!important
+}
 
-Do NOT change the existing working .vava-upload-progress-head or .vava-upload-progress-track inset rules.
-Do NOT remove the generic .vava-upload-progress span rule globally.
+IMPORTANT
+Do NOT place this only at the bottom of the file.
+It MUST be directly after the already-parsed .vava-upload-progress span rule.
 
-PUBLIC CHECK
-After deployment, fetch admin-homepage.css with a cache-busting query and confirm the response contains:
-Stage 02 Follow-up #11 — direct percentage reset
+Do NOT require .vava-selections-admin.
+Do NOT require body.vava-advanced-page-editor for this percentage reset.
+The selector is intentionally direct and narrow:
 
-LIVE MATCHED-RULE CHECK — MANDATORY
-During an actual PDF upload, inspect the real percentage element:
+.vava-upload-progress [data-upload-progress-percent]
 
-const p = document.querySelector('[data-vava-upload-progress].is-active:not([hidden]) [data-upload-progress-percent]');
+It affects only the percentage element inside VAVA upload progress.
 
-Then scan matched rules again.
-The NEW #11 selector MUST appear in matched rules.
-If it does not appear, DO NOT report success.
+OPTIONAL DIAGNOSIS
+Because cssomPercentRuleFound was false for #11, inspect the live CSS around the appended Stage 02 blocks for malformed braces/comments/syntax.
+If you find a clear syntax error, REPORT it.
+Do not broadly rewrite the stylesheet unless needed for this fix.
+
+PUBLIC FILE CHECK
+After deployment fetch live admin-homepage.css with cache busting and confirm it contains:
+Stage 02 Follow-up #12 — parsed-location percentage reset
+
+CSSOM CHECK — MANDATORY
+Hard refresh WordPress Admin.
+Start an actual PDF upload.
+Run:
+
+const p = document.querySelector('[data-upload-progress-percent]');
+let found = false;
+[...document.styleSheets].forEach(sheet => {
+  try {
+    [...sheet.cssRules].forEach(rule => {
+      if (rule.selectorText && rule.selectorText.includes('[data-upload-progress-percent]')) {
+        console.log('CSSOM PERCENT RULE:', rule.selectorText, 'FILE:', sheet.href);
+        found = true;
+      }
+    });
+  } catch(e) {}
+});
+console.log('cssomPercentRuleFound:', found);
+
+MANDATORY:
+cssomPercentRuleFound === true
 
 COMPUTED STYLE CHECK
-During upload run:
+Then run:
 
 const cs = getComputedStyle(p);
 const r = p.getBoundingClientRect();
@@ -102,30 +144,34 @@ console.log({
 });
 
 MANDATORY PASS CONDITIONS
-- the #11 direct selector appears in matched rules
+- cssomPercentRuleFound === true
 - width !== '0px'
-- background is transparent / not rgb(111,129,95)
+- background is transparent / not rgb(111, 129, 95)
 - insideHead === true
-- percentage visually aligns inside the same left inset as the progress track
-- Arabic label and track remain unchanged
+- percentage visually sits inside the left inset
+- progress track remains unchanged
+- Arabic label remains unchanged
 - PDF upload still works
+
+If cssomPercentRuleFound is still false:
+DO NOT report success.
+Report the exact first malformed CSS area or parsing boundary you found in admin-homepage.css.
 
 REPORT
 1. Exact live file modified.
 2. Backup created.
-3. Patch 0011 applied directly or manually.
-4. Public #11 marker present true/false.
-5. Does .vava-selections-admin exist as an ancestor of the real percentage node? true/false.
-6. Does the #11 selector appear in matched rules? true/false.
-7. Computed width.
-8. Computed height.
-9. Computed background.
-10. percentLeft / percentRight.
-11. headLeft / headRight.
-12. insideHead true/false.
-13. Visual result.
-14. Confirmation upload still works.
+3. Patch 0012 direct/manual.
+4. Public #12 marker present true/false.
+5. Whether #12 rule was placed immediately after parsed .vava-upload-progress span rule.
+6. cssomPercentRuleFound true/false.
+7. Any malformed CSS/syntax issue discovered.
+8. Computed percentage width.
+9. Computed percentage height.
+10. Computed percentage background.
+11. insideHead true/false.
+12. Visual result.
+13. Confirmation PDF upload still works.
 
-SUCCESS IS NOT ALLOWED if width remains 0px or if only .vava-upload-progress span appears in matched rules.
+SUCCESS IS NOT ALLOWED unless cssomPercentRuleFound is true and computed width is not 0px.
 
 STOP after this fix.
