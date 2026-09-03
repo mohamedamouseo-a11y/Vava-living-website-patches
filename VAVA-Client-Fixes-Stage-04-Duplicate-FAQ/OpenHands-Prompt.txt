@@ -1,0 +1,179 @@
+VAVA Living — Stage 04
+Remove Duplicate FAQ Admin Section
+LIVE HOSTING / FTP DEPLOYMENT
+
+IMPORTANT DEPLOYMENT MODE
+
+You are connected directly to the VAVA Living production hosting through FTP.
+Apply this Stage 04 fix DIRECTLY to the live WordPress theme.
+
+DO NOT:
+- clone GitHub
+- create a local working copy
+- create a Git branch
+- commit
+- push
+- work in /tmp
+- modify unrelated files
+- change FAQ questions/answers
+- change frontend FAQ content
+- delete saved FAQ post meta
+
+CONFIRMED SOURCE DIAGNOSIS
+
+The Paths VAVA admin section registry currently contains TWO section keys with the same FAQ label:
+
+English:
+'questions' => 'Frequently asked questions'
+'faq'       => 'Frequently asked questions'
+
+Arabic:
+'questions' => 'الأسئلة الشائعة'
+'faq'       => 'الأسئلة الشائعة'
+
+The duplicate 'questions' section is redundant.
+
+It previews the same:
+$data['faq']['items']
+
+that the canonical 'faq' section already edits.
+
+Also, the editor controls contain a dedicated branch for:
+'faq'
+
+but no controls branch for:
+'questions'
+
+so the duplicate 'questions' section can fall through to unrelated controls.
+
+The canonical section to KEEP is:
+'faq'
+
+PATCH TO APPLY
+
+VAVA-Client-Fixes-Stage-04-Duplicate-FAQ/patches/0001-remove-duplicate-paths-faq-admin-section.patch
+
+TARGET LIVE FILE
+
+wp-content/themes/vava-living-theme-ar-v1/inc/paths-vava.php
+
+BACKUP FIRST
+
+Before modifying create:
+
+wp-content/themes/vava-living-theme-ar-v1/inc/paths-vava.php.bak-stage04
+
+Do not overwrite an existing backup. If it already exists, append a timestamp.
+
+REQUIRED CHANGE ONLY
+
+1. In vava_paths_sections():
+
+Remove the duplicate section entry:
+
+'questions' => 'Frequently asked questions'
+
+and Arabic equivalent:
+
+'questions' => 'الأسئلة الشائعة'
+
+Keep:
+
+'faq' => 'Frequently asked questions'
+
+and:
+
+'faq' => 'الأسئلة الشائعة'
+
+2. In vava_paths_render_preview():
+
+Remove the obsolete preview-only branch:
+
+elseif ( 'questions' === $section )
+
+because it duplicates the canonical FAQ preview using the same FAQ items.
+
+3. KEEP the canonical:
+
+elseif ( 'faq' === $section )
+
+including:
+- editable FAQ title
+- editable FAQ intro
+- FAQ items
+- Arabic and English data
+
+DO NOT CHANGE
+
+Do not change:
+- FAQ questions
+- FAQ answers
+- faq.items data
+- faq.title data
+- faq.intro data
+- post meta keys
+- frontend rendering
+- booking flow
+- digital products
+- Paths hero
+- CSS
+- JavaScript
+
+VALIDATION
+
+After modification:
+
+1. Run PHP syntax validation on:
+
+wp-content/themes/vava-living-theme-ar-v1/inc/paths-vava.php
+
+Expected: no syntax errors.
+
+2. Open the Paths VAVA WordPress admin editor.
+
+3. Verify Arabic section navigation contains ONLY ONE FAQ section:
+
+الأسئلة الشائعة
+
+There must not be a second duplicate FAQ section.
+
+4. Switch to English.
+
+Verify only ONE:
+
+Frequently asked questions
+
+section appears.
+
+5. Open the remaining FAQ section and verify:
+- FAQ preview loads
+- FAQ title field exists
+- FAQ intro field exists
+- FAQ questions/answers still appear
+- editing/saving an FAQ item still works
+
+6. Verify existing saved FAQ data was NOT deleted or reset.
+
+7. Verify frontend Paths VAVA FAQ content is unchanged.
+
+IMPORTANT SUCCESS CONDITION
+
+Do NOT report success only because the PHP file was edited.
+Confirm in the live WordPress admin that only one FAQ section appears in Arabic and English.
+
+REPORT
+
+Return:
+1. Exact live file modified.
+2. Backup created.
+3. Patch applied directly or manually.
+4. PHP syntax result.
+5. Arabic FAQ section count before/after if observable.
+6. English FAQ section count before/after if observable.
+7. Confirmation canonical 'faq' section remains.
+8. Confirmation FAQ title/intro/items remain editable.
+9. Confirmation saved FAQ data remains intact.
+10. Confirmation frontend FAQ content remains unchanged.
+
+STOP after Stage 04.
+Do not proceed to another client fix.
