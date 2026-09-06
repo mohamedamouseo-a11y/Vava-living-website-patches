@@ -1,0 +1,207 @@
+VAVA Living — Stage 08
+Remove/replace decorative ❧ icon site-wide
+LIVE HOSTING / FTP DEPLOYMENT
+
+You are connected directly to the VAVA Living PRODUCTION hosting through FTP.
+Work on the live WordPress installation only.
+
+CLIENT REQUEST
+The client reports that this decorative icon is still visible in scattered sections across the website:
+
+❧
+
+Remove that icon from the entire public site and replace it with a decorative icon/motif that is consistent with the existing VAVA Living visual theme.
+
+IMPORTANT SAFETY / SCOPE RULES
+DO NOT:
+- clone the source GitHub repository as the deployment target
+- create source branches or commits
+- push source changes to GitHub
+- use /tmp as the deployment target
+- perform a blind global database replacement
+- manually edit serialized database values with raw SQL
+- redesign sections
+- change copy/text, spacing, colors, typography, booking, payments, products, questionnaires, or unrelated functionality
+- introduce a new external icon library
+
+This stage is SITE-WIDE but ONLY for the reported decorative ❧ symbol and its direct visual replacement.
+
+SOURCE REVIEW NOTE
+A GitHub code search for the literal symbol did not prove its current source. The live site may differ from GitHub main, and the symbol may be stored as:
+- literal UTF-8 ❧
+- HTML entity &#10087;
+- HTML hex entity &#x2767;
+- Unicode escape \u2767
+- generated CSS content
+- WordPress post content/meta/options
+- rendered content produced by JavaScript or a shortcode
+
+Therefore this task is DIAGNOSTIC-FIRST on LIVE hosting.
+
+STEP 1 — FIND EVERY LIVE SOURCE OF THE SYMBOL
+Search the deployed active theme recursively under:
+
+wp-content/themes/vava-living-theme-ar-v1/
+
+Search for all of these forms:
+❧
+&#10087;
+&#x2767;
+&#X2767;
+\u2767
+\2767
+content: "❧"
+content:'❧'
+
+Inspect relevant PHP, CSS, JS, HTML, JSON, SVG/text template files.
+
+Also search for CSS pseudo-elements whose `content` renders the same symbol even if encoded differently.
+
+For every proven match, report BEFORE editing:
+- exact live file path
+- line/context
+- literal/encoded form
+- whether it is public frontend output, admin-only output, or unrelated/non-rendered data
+- the page/section where it renders if identifiable
+
+Do not edit yet.
+
+STEP 2 — SEARCH WORDPRESS CONTENT SAFELY IF NEEDED
+If the symbol is not fully accounted for in theme files, inspect WordPress content through WordPress APIs/WP-CLI or another safe WordPress-aware method.
+
+Check relevant:
+- post_content / page content
+- post meta
+- options
+- widget/block/custom VAVA data
+- serialized arrays through WordPress APIs
+
+Search for the literal and encoded forms above.
+
+DO NOT perform database-wide raw SQL replacement.
+DO NOT edit serialized strings manually.
+
+For each proven WordPress-data occurrence, report:
+- post/page ID or option name
+- meta key/field path when applicable
+- exact OLD value or fragment
+- exact live URL/section if known
+
+STEP 3 — VERIFY THE ACTUAL FRONTEND OCCURRENCES
+The client said the icon appears in scattered pages and cannot list all locations.
+
+Crawl/fetch the major public pages available from the site's own navigation/sitemap where practical, including both Arabic and English public pages.
+
+Search the rendered HTML for:
+❧
+&#10087;
+&#x2767;
+
+Where browser/DOM inspection is available, also inspect generated ::before/::after content for the symbol.
+
+Build a list of every confirmed public occurrence before editing.
+
+Do not count occurrences found only in backup files, comments, documentation, source maps, or non-rendered admin text as public occurrences.
+
+STEP 4 — PROVE A VAVA-NATIVE REPLACEMENT MOTIF
+Before replacing the symbol, inspect the CURRENT live theme for an already-used decorative icon/motif that clearly belongs to the VAVA visual system.
+
+Preferred sources, in order:
+1. an existing reusable VAVA decorative SVG/icon helper already used publicly,
+2. an existing theme SVG/image asset already used as a small decorative marker,
+3. an existing inline SVG motif already repeated across VAVA sections.
+
+Do NOT add Font Awesome or any new external library.
+Do NOT invent a random emoji/Unicode character.
+
+The replacement should be:
+- visually subtle,
+- consistent with the existing green/natural VAVA theme,
+- accessible/decorative (`aria-hidden="true"` when markup is inserted),
+- not text announced by screen readers,
+- size/alignment-compatible with the location being replaced.
+
+If NO existing VAVA-native replacement can be proven from the live theme:
+STOP before visual replacement and report:
+STAGE 08 — REPLACEMENT MOTIF NOT PROVEN
+Include the confirmed ❧ locations and candidate existing theme motifs found.
+Do not invent a new icon.
+
+STEP 5 — BACK UP EVERY EXACT TARGET
+For each live theme file that will change, create a unique adjacent backup:
+
+<filename>.bak-stage08-{timestamp}
+
+Never overwrite an existing backup.
+
+For WordPress content/meta/options, record/export the complete OLD value through WordPress before modification.
+
+STEP 6 — APPLY THE SMALLEST SITE-WIDE FIX
+Replace ONLY proven PUBLIC uses of ❧ (literal or encoded) with the proven VAVA-native decorative motif.
+
+Rules:
+- preserve surrounding text exactly
+- preserve links/buttons and click behavior
+- preserve layout dimensions as closely as possible
+- if ❧ comes from a CSS pseudo-element, replace only the pseudo-element content/rendering rule
+- if ❧ is embedded in a text string, remove only the symbol and insert the proven decorative element only if the rendering architecture supports it safely; do not corrupt text
+- if the same source produces the symbol on multiple pages, fix the shared source once rather than duplicating overrides
+- if a stored WordPress field contains the symbol, update it via WordPress APIs so serialization remains valid
+- do not modify historical backups or non-rendered records simply to make text search return zero
+
+STEP 7 — VALIDATE
+For every modified PHP file: run PHP syntax validation when available.
+For every modified JS file: run JavaScript syntax validation when available.
+For every modified JSON file: validate JSON.
+For CSS: confirm stylesheet remains parseable and the replacement rule is actually served publicly.
+For WordPress data: read values back through WordPress APIs and verify integrity.
+
+STEP 8 — LIVE FRONTEND VERIFICATION — MANDATORY
+After changes, clear accessible WordPress/server/CDN caches or use cache-busting where possible.
+
+Re-fetch/re-open the confirmed affected pages.
+
+Confirm:
+1. No confirmed public occurrence still renders ❧.
+2. The replacement motif renders in each affected location.
+3. Arabic pages are correct.
+4. English pages are correct where the symbol existed.
+5. Desktop layout remains intact.
+6. Mobile/responsive layout remains intact on representative affected pages.
+7. No surrounding copy changed.
+8. No booking/payment/product/questionnaire functionality changed.
+9. No new external icon dependency was introduced.
+
+Do NOT report success based only on FTP file contents.
+The live/public result must be verified.
+
+MANDATORY SUCCESS CONDITIONS
+- every confirmed public source of ❧ is identified
+- every modified target was backed up / old value captured
+- a pre-existing VAVA-native replacement motif was proven
+- confirmed public pages no longer render ❧
+- replacement motif is visible and aligned correctly
+- surrounding content/functionality remains unchanged
+- Arabic/English and representative mobile checks pass
+
+If you cannot account for all public occurrences, report PARTIAL — DO NOT CLAIM SITE-WIDE SUCCESS.
+
+REPORT
+Return:
+1. Stage status: APPLIED / PARTIAL / TARGET NOT PRESENT / REPLACEMENT MOTIF NOT PROVEN.
+2. Total confirmed public ❧ occurrences before change.
+3. Table of each occurrence: live URL/section + source file/data location + literal/encoded form.
+4. Exact replacement motif reused and where it already existed in VAVA.
+5. Exact live files/data modified.
+6. Backups/old values captured.
+7. Syntax/data validation results.
+8. Total confirmed public ❧ occurrences after change.
+9. Arabic verification result.
+10. English verification result.
+11. Representative mobile verification result.
+12. Confirmation surrounding copy unchanged.
+13. Confirmation no unrelated functionality changed.
+14. Live URLs used for verification.
+
+STOP after Stage 08.
+Do not proceed to another client request.
