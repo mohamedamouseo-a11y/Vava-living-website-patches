@@ -1,0 +1,279 @@
+VAVA Living — Stage 07
+Remove the closing question from “مجرد فكرة / استشارة سريعة”
+LIVE HOSTING / FTP DEPLOYMENT
+
+IMPORTANT DEPLOYMENT MODE
+
+You are connected directly to the VAVA Living PRODUCTION hosting through FTP.
+Work on the live WordPress installation only.
+
+DO NOT:
+- clone GitHub
+- create a local repository
+- create a Git branch
+- commit source changes
+- push source changes to GitHub
+- use /tmp as a deployment target
+- perform a global Arabic string replacement
+- edit unrelated Arabic or English copy
+- change layout, pricing, booking, payment, questionnaires, digital products, Paths hero, or unrelated CSS/JS
+
+CLIENT REQUEST
+
+Remove ONLY the closing/final question that begins with:
+
+هل أبدأ بفهم جسدي أولًا؟
+
+The client described this question as appearing in the “مجرد فكرة / استشارة سريعة” area.
+
+Preserve all surrounding approved content, card/session titles, descriptions, prices, buttons, booking behavior, and English wording unless the exact same proven field structurally requires a non-content adjustment.
+
+SOURCE REVIEW BEFORE LIVE WORK
+
+The exact question text and the phrase “مجرد فكرة” were NOT found in the current GitHub default branch during source review.
+
+However, the current Paths defaults DO contain an Arabic session titled:
+
+استشارة سريعة
+
+with uid:
+
+session-8
+
+Therefore Stage 07 is DIAGNOSTIC-FIRST on the LIVE installation.
+Do not guess the source and do not edit anything until the exact live source is proven.
+
+STEP 1 — SEARCH THE DEPLOYED THEME
+
+Search under:
+
+wp-content/themes/vava-living-theme-ar-v1/
+
+for exact and near-exact UTF-8 forms including:
+
+هل أبدأ بفهم جسدي أولًا
+هل أبدأ بفهم جسدي
+أبدأ بفهم جسدي
+فهم جسدي أولًا
+فهم جسدي
+مجرد فكرة
+استشارة سريعة
+
+Also search punctuation variants:
+- ؟
+- ?
+- Unicode ellipsis …
+- three dots ...
+- extra/non-breaking whitespace
+
+Search relevant PHP, JSON, HTML and JS files.
+For every relevant match report:
+- full live path
+- exact context/value
+- whether it is frontend copy, default data, admin field, migration text, or unrelated text
+
+DO NOT EDIT YET.
+
+STEP 2 — CHECK THE VAVA PATHS LIVE DATA
+
+The current project uses the VAVA Paths page data structure and the default source includes “استشارة سريعة” as session uid session-8.
+
+Inspect the live VAVA Paths page first, including the page that stores:
+
+_vava_paths_data_ar
+_vava_paths_data_en
+
+Pay special attention to:
+- packages/session entries
+- uid session-8
+- title “استشارة سريعة”
+- any description, overview, note, CTA, question, footer, closing, intro, or custom field associated with that session
+
+Use WordPress APIs/WP-CLI/safe PHP inspection so serialized data stays intact.
+Do not use raw database-wide replacements.
+
+Record:
+- page ID
+- page title/slug
+- meta key
+- exact path inside the stored array
+- exact current value
+
+DO NOT EDIT YET.
+
+STEP 3 — LOCATE “مجرد فكرة” SAFELY
+
+If “مجرد فكرة” is not in the Paths page data, search WordPress data safely for that exact phrase and nearby variants in:
+- posts/pages
+- post title/content/excerpt
+- post meta
+- options
+- custom VAVA data arrays
+
+If found, identify:
+- page/post ID
+- post type
+- title/slug
+- exact live URL
+- exact meta key/field/content fragment
+
+Do not change anything until the source is proven.
+
+STEP 4 — VERIFY THE LIVE FRONTEND/ADMIN LOCATION
+
+If source search is inconclusive, inspect the actual live page(s) that contain “استشارة سريعة” and/or “مجرد فكرة”.
+
+Trace the rendered question from the DOM back to its exact source using:
+- nearest unique wrapper class/id/data attribute
+- card/session uid or data-session identifier
+- visible neighboring text
+- corresponding WordPress page/meta field
+
+The target must be unquestionably the final question beginning with:
+
+هل أبدأ بفهم جسدي أولًا؟
+
+Do not remove another FAQ/question that only contains similar words.
+
+STEP 5 — PROVE THE TARGET BEFORE EDITING
+
+Before any change, establish ONE exact source:
+
+CASE A — THEME FILE
+- exact live file path
+- exact line/value
+
+CASE B — PATHS/POST META
+- page ID
+- meta key
+- exact array path/field
+- exact current value
+
+CASE C — OPTION
+- option name
+- exact field/value
+
+CASE D — POST/BLOCK CONTENT
+- page/post ID
+- exact current content fragment
+
+If the exact source cannot be proven:
+STOP and report exactly:
+
+STAGE 07 — TARGET NOT PROVEN
+
+Make NO edits.
+
+If the closing question is already absent from both relevant live areas:
+STOP and report:
+
+STAGE 07 — ALREADY RESOLVED / TARGET NOT PRESENT
+
+Make NO edits.
+
+STEP 6 — BACKUP THE EXACT TARGET
+
+If a theme file:
+create a unique backup beside it:
+
+<filename>.bak-stage07-{timestamp}
+
+Do not overwrite previous backups.
+
+If WordPress data:
+record/export the exact OLD value and key/array path before changing it.
+
+STEP 7 — APPLY THE SMALLEST POSSIBLE FIX
+
+Remove ONLY the final question beginning with:
+
+هل أبدأ بفهم جسدي أولًا؟
+
+If the question contains extra trailing text or ellipsis, remove the complete question element/value only after proving it is the client-requested closing question.
+
+If it is a separate field:
+- blank/remove only that field
+
+If it is inside a larger text block:
+- remove only the question sentence/line
+- clean only the orphan line break/whitespace caused by that removal
+- preserve every other sentence exactly
+
+If the same question is independently stored in BOTH “مجرد فكرة” and “استشارة سريعة” and both are confirmed client targets:
+- back up both exact sources
+- remove only the question from each proven source
+- do not alter any other field
+
+DO NOT change:
+- “استشارة سريعة” title
+- session-8 uid
+- descriptions/overview
+- prices/currency
+- buttons/links
+- booking configuration
+- availability
+- package/session ordering
+- other FAQ questions
+- English wording
+- design/CSS
+
+STEP 8 — VALIDATE
+
+If PHP changed:
+run PHP syntax validation.
+
+If JSON changed:
+validate JSON.
+
+If WordPress meta/option/content changed:
+read the updated value back through WordPress APIs and verify serialization/data integrity.
+
+STEP 9 — MANDATORY LIVE VERIFICATION
+
+Verify the exact affected live page(s), with cache clear/cache-busting if accessible.
+
+Confirm:
+1. The question beginning “هل أبدأ بفهم جسدي أولًا؟” is absent from the intended “مجرد فكرة / استشارة سريعة” target area(s).
+2. “استشارة سريعة” still exists and its content remains intact except for the removed final question.
+3. If “مجرد فكرة” is a separate target, its surrounding content remains intact except for that question.
+4. No unrelated FAQ/question was removed.
+5. No empty container, duplicated punctuation, broken spacing, or broken layout remains.
+6. Booking/buttons/pricing still work and display exactly as before.
+7. English wording remains unchanged.
+
+Do NOT report success from FTP/database inspection alone.
+
+MANDATORY SUCCESS CONDITIONS
+
+- exact live source proven before edit
+- backup/old value captured
+- only the proven question target changed
+- target question absent on live frontend
+- surrounding Arabic copy unchanged
+- “استشارة سريعة” remains present
+- booking/pricing/buttons unchanged
+- English wording unchanged
+- live verification passed
+
+REPORT
+
+Return:
+1. Stage status: APPLIED / ALREADY RESOLVED / TARGET NOT PROVEN.
+2. Exact live source type: theme file / post meta / option / post content.
+3. Exact file path OR page ID + meta key + array path/field.
+4. Exact live URL(s) verified.
+5. Exact OLD value/fragment.
+6. Exact NEW value/fragment, if changed.
+7. Backup created / old value captured.
+8. Files/data modified.
+9. Syntax/data validation result.
+10. Was target found under “استشارة سريعة”: true/false.
+11. Was target found under “مجرد فكرة”: true/false.
+12. Target question absent after change: true/false.
+13. Surrounding copy unchanged: true/false.
+14. Booking/pricing/buttons unchanged: true/false.
+15. English wording unchanged: true/false.
+16. Live frontend verification passed: true/false.
+
+STOP after Stage 07.
+Do not proceed to Stage 08.
