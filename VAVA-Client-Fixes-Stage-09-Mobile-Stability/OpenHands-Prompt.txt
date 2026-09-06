@@ -1,0 +1,313 @@
+VAVA Living — Stage 09
+Mobile Page/Section Stability on LIVE site
+LIVE HOSTING / FTP DEPLOYMENT
+
+IMPORTANT DEPLOYMENT MODE
+
+You are connected directly to the VAVA Living PRODUCTION hosting through FTP.
+Work on the LIVE WordPress installation only.
+
+DO NOT:
+- clone GitHub
+- create a local repository
+- create a Git branch
+- commit
+- push
+- use /tmp as a deployment target
+- apply a blanket overflow:hidden to the whole site without proving the cause
+- disable all animations globally
+- remove sliders/carousels unless they are proven to be the bug
+- redesign sections
+- change desktop behavior unnecessarily
+- change text/content
+- change booking/payment/digital-product logic
+- touch unrelated pages
+
+CLIENT REQUEST
+
+On mobile, the client reports that some sections/pages in the main site interface "move" while others remain fixed, making some descriptions difficult to read. The requested result is that the affected mobile content should remain visually stable and readable.
+
+The word "move" is ambiguous. It may mean one or more of:
+- horizontal page drift / sideways scroll
+- content shifting left/right during scroll
+- entrance/reveal animation that keeps text moving
+- transform/translate effects
+- carousel/slider movement
+- image/layout shift after loading
+- oversized element wider than the viewport
+- CSS animation or transition affecting text readability
+- JavaScript scroll/parallax behavior
+
+Therefore Stage 09 is DIAGNOSTIC-FIRST.
+Do NOT guess the cause and do NOT apply a site-wide CSS hack before reproducing the problem on LIVE mobile viewports.
+
+--------------------------------
+STEP 1 — REPRODUCE ON THE LIVE MOBILE FRONTEND
+--------------------------------
+
+Test the LIVE site in at least these mobile viewport widths:
+- 360px
+- 390px
+- 412px
+
+Test at least:
+- Arabic homepage
+- English homepage
+- any homepage-linked section/page where the same movement is reproducible
+
+Use the actual production URLs.
+
+For each tested URL:
+1. Scroll slowly from top to bottom.
+2. Check whether the document can move horizontally.
+3. Check whether text cards/sections visibly slide, translate, animate, or jump while reading.
+4. Check whether the layout shifts after images/fonts/scripts load.
+5. Check whether any section is a deliberate carousel/slider.
+
+Record BEFORE-state evidence:
+- URL
+- viewport width
+- section name or nearest visible heading
+- exact element selector/class if possible
+- movement type
+- whether the issue affects readability
+
+If NO unwanted movement can be reproduced on the live site at all:
+STOP.
+Report:
+STAGE 09 — TARGET NOT PROVEN
+Make NO edits.
+
+--------------------------------
+STEP 2 — MEASURE HORIZONTAL OVERFLOW
+--------------------------------
+
+On every affected mobile page compare:
+
+document.documentElement.scrollWidth
+window.innerWidth
+
+If scrollWidth > innerWidth, identify the exact overflowing element(s).
+
+Inspect likely causes such as:
+- width / min-width / max-width
+- 100vw combined with padding/margins
+- negative margins
+- absolute/fixed positioning
+- translateX / transform
+- left/right offsets
+- large images/videos/iframes
+- flex/grid children refusing to shrink
+- white-space: nowrap
+- box-shadow/pseudo-elements if they enlarge the scrollable box
+
+Do NOT hide overflow until the real offending element is identified.
+
+--------------------------------
+STEP 3 — TRACE ANIMATION / TRANSFORM / SCRIPT SOURCES
+--------------------------------
+
+For every affected element inspect computed styles and source rules for:
+- animation
+- animation-name
+- transition
+- transform
+- translate
+- position
+- left/right
+- scroll-snap
+- overflow
+
+Also inspect live JavaScript for:
+- IntersectionObserver
+- scroll listeners
+- requestAnimationFrame
+- class toggles used for reveal animations
+- parallax/translate effects
+- sliders/carousels
+- auto-play movement
+
+Search the active theme under:
+wp-content/themes/vava-living-theme-ar-v1/
+
+Likely areas include the active frontend CSS and JS files, but modify ONLY files proven to cause the reproduced issue.
+
+For every proven cause report BEFORE editing:
+- exact live file path
+- exact selector/function
+- exact current rule/behavior
+- exact affected live URL and section
+
+--------------------------------
+STEP 4 — DISTINGUISH BUGS FROM INTENDED INTERACTION
+--------------------------------
+
+Do NOT remove legitimate functionality just because it moves.
+
+Keep working controls such as:
+- manually controlled sliders
+- navigation menus
+- accordions
+- intentionally interactive components
+
+Only fix movement that:
+- happens while ordinary reading/scrolling,
+- makes text unstable or hard to read,
+- causes page-wide sideways drift,
+- or creates layout shifts not required by the design.
+
+If the client-visible issue is caused by an entrance/reveal animation, disable or neutralize ONLY that problematic mobile motion while preserving the final static appearance.
+
+If the cause is horizontal overflow, fix the element geometry at its source instead of only masking it on body/html.
+
+--------------------------------
+STEP 5 — PROVE THE TARGET BEFORE EDITING
+--------------------------------
+
+Before any change, identify at least one exact proven root cause.
+
+Examples:
+CASE A — CSS geometry bug
+- live CSS path
+- selector
+- overflowing property/value
+
+CASE B — CSS animation/transform
+- live CSS path
+- selector/keyframes
+- exact animation/transform causing motion
+
+CASE C — JavaScript behavior
+- live JS path
+- function/listener/observer
+- exact behavior causing motion
+
+CASE D — media/content element
+- page/section
+- exact element causing overflow/layout shift
+- source file/data if editable
+
+If root cause cannot be proven:
+STOP.
+Report:
+STAGE 09 — ROOT CAUSE NOT PROVEN
+Make NO edits.
+
+--------------------------------
+STEP 6 — BACKUP
+--------------------------------
+
+Before modifying every live file create a unique backup beside it:
+
+<filename>.bak-stage09-{timestamp}
+
+Do not overwrite existing backups.
+
+If WordPress content/data must be changed, record/export the exact OLD value first and preserve serialization through WordPress APIs.
+
+--------------------------------
+STEP 7 — APPLY THE SMALLEST MOBILE-SCOPED FIX
+--------------------------------
+
+Apply ONLY the fix required for the proven root cause.
+
+Preferred principles:
+- scope CSS fixes to mobile breakpoints when the bug is mobile-only
+- remove/neutralize only the problematic transform/animation
+- preserve the element's final position and visual design
+- use max-width:100% / min-width:0 / box-sizing or corrected width only where proven necessary
+- correct 100vw/negative-margin geometry at the source where applicable
+- preserve RTL and LTR behavior
+- preserve desktop layout
+
+DO NOT automatically add:
+html, body { overflow-x: hidden; }
+as the sole fix unless you have already corrected the actual overflowing element and this is still demonstrably required.
+
+DO NOT disable:
+* { animation: none !important; transition: none !important; }
+
+--------------------------------
+STEP 8 — VALIDATION
+--------------------------------
+
+If PHP changed:
+run PHP syntax validation.
+
+If JavaScript changed:
+run JavaScript syntax validation.
+
+If CSS changed:
+confirm valid parsing and that the public HTTP-served stylesheet contains the new rule after cache busting.
+
+Clear/bypass relevant WordPress/server/CDN/browser cache if accessible.
+
+--------------------------------
+STEP 9 — MANDATORY LIVE MOBILE VERIFICATION
+--------------------------------
+
+Retest the exact affected URLs at:
+- 360px
+- 390px
+- 412px
+
+For each affected page verify:
+1. No unintended horizontal page drift.
+2. documentElement.scrollWidth <= window.innerWidth, allowing only unavoidable subpixel rounding if demonstrably harmless.
+3. Affected text/description sections remain stable while scrolling/reading.
+4. No unwanted translate/slide/jump remains.
+5. Intended sliders/interactive controls still work.
+6. No content is clipped.
+7. No new empty space is introduced.
+8. Arabic RTL remains correct.
+9. English LTR remains correct.
+10. Desktop appearance/behavior remains unchanged.
+
+Do NOT report success from file inspection alone.
+
+--------------------------------
+MANDATORY SUCCESS CONDITIONS
+--------------------------------
+
+Success is allowed only if:
+- the live mobile issue was reproduced before editing
+- the exact root cause was proven
+- backup(s) were created
+- only the proven source was changed
+- the unwanted movement is gone on the live mobile frontend
+- text is stable/readable
+- horizontal overflow is eliminated where it was the cause
+- intended interactive movement still works
+- Arabic and English remain correct
+- desktop is not broken
+
+--------------------------------
+REPORT
+--------------------------------
+
+Return:
+1. Stage status: APPLIED / TARGET NOT PROVEN / ROOT CAUSE NOT PROVEN.
+2. Every LIVE URL tested.
+3. Mobile viewports tested.
+4. Exact affected section(s).
+5. Movement type reproduced BEFORE change.
+6. documentElement.scrollWidth vs window.innerWidth BEFORE, for affected pages.
+7. Exact proven root cause.
+8. Exact live file(s) modified.
+9. Exact selector/function/rule changed.
+10. Backup file(s) created.
+11. Exact OLD behavior/rule.
+12. Exact NEW behavior/rule.
+13. Syntax/CSS validation result.
+14. Cache clearing/busting result.
+15. documentElement.scrollWidth vs window.innerWidth AFTER.
+16. Unwanted mobile movement removed: true/false.
+17. Text stable/readable: true/false.
+18. Intended sliders/interactions still work: true/false.
+19. Arabic mobile verification passed: true/false.
+20. English mobile verification passed: true/false.
+21. Desktop regression check passed: true/false.
+22. Live frontend verification passed: true/false.
+
+STOP after Stage 09.
+Do not proceed to Stage 10.
