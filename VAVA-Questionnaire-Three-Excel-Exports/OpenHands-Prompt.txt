@@ -1,0 +1,16 @@
+Work on `/public_html`.
+
+Apply this patch only:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/questionnaire-three-excel-exports`
+File: `VAVA-Questionnaire-Three-Excel-Exports/README.md`
+
+Follow the README against the CURRENT live code.
+
+Important: the previous questionnaire dashboard patch may already be active. Replace that UX with 3 Excel buttons inside the existing Booking > Questionnaires area: one for beginning, one for midpoint, one for impact. Reuse existing export helpers where possible. Remove/disable the separate Questionnaires submenu/dashboard, but keep all stored data and existing questionnaire editing/booking behavior unchanged.
+
+Do not touch unrelated systems. Do not push, merge, create PRs, or modify remote `main`.
+
+Run PHP lint on changed PHP files and `git diff --check`.
+
+Leave changes in `/public_html` for the user to review and push from Developer Hub.
