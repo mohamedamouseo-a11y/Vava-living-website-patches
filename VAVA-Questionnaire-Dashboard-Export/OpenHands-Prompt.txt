@@ -1,0 +1,405 @@
+VAVA LIVING — QUESTIONNAIRE DASHBOARD + EXCEL EXPORT
+
+PATCH REPOSITORY:
+https://github.com/mohamedamouseo-a11y/Vava-living-website-patches
+
+PATCH FOLDER:
+VAVA-Questionnaire-Dashboard-Export/
+
+TARGET WEBSITE WORKTREE:
+/public_html
+
+IMPORTANT: The live server may contain newer code than GitHub main. Inspect the CURRENT live files first and apply the patch semantically. Do not blindly overwrite whole files.
+
+==================================================
+WORKFLOW — DO NOT PUSH
+==================================================
+
+The USER will review and perform the Git push from the VAVA Developer Hub after you finish.
+
+Therefore:
+- Work only in the CURRENT live website worktree.
+- DO NOT run git push.
+- DO NOT merge.
+- DO NOT create a pull request.
+- DO NOT switch branches unless absolutely required by the existing local workflow.
+- Do not modify GitHub directly.
+- Do not create tracked backup files (*.bak, *.backup, copies) inside the repository.
+- If you need temporary backups, keep them outside the tracked repository.
+- Finish with local validation + git diff review only.
+
+==================================================
+READ FIRST
+==================================================
+
+Read all files inside:
+VAVA-Questionnaire-Dashboard-Export/
+
+Especially:
+- README.md
+- patches/questionnaire-dashboard-export-spec.md
+
+Then inspect these CURRENT live project files before editing:
+
+wp-content/themes/vava-living-theme-ar-v1/functions.php
+wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
+wp-content/themes/vava-living-theme-ar-v1/inc/booking-vava-safe-v4r10.php
+
+If filenames differ on live because of a newer recovery version, identify the currently active equivalents from functions.php and use those instead.
+
+==================================================
+GOAL
+==================================================
+
+Add a dedicated WordPress Dashboard interface for the EXISTING VAVA questionnaires.
+
+Required admin experience:
+
+Bookings / حجوزات VAVA
+  -> Questionnaires / الاستبيانات
+
+Inside the page provide two tabs:
+
+1) Manage Questionnaires
+2) Responses
+
+This is an ADMIN-ONLY feature.
+Do not change the customer-facing questionnaire workflow.
+
+==================================================
+EXISTING QUESTIONNAIRE DATA MODEL — PRESERVE IT
+==================================================
+
+The current questionnaire engine already has:
+
+- beginning
+- midpoint
+- impact
+
+Current canonical settings are stored on the Booking page under:
+_vava_booking_questionnaires
+
+Normal booking questionnaire submission:
+_vava_booking_questionnaire
+
+Impact questionnaire submission:
+_vava_booking_impact_questionnaire
+
+Current submission structure includes fields such as:
+- type
+- title
+- language
+- completed_at
+- answers
+- snapshot
+
+The saved snapshot is important and MUST be used to label historical response data whenever available.
+
+Do NOT create a second questionnaire storage system.
+Do NOT migrate existing response data unless an actual compatibility issue is found and documented.
+
+==================================================
+STEP 1 — ADD AN ISOLATED ADMIN MODULE
+==================================================
+
+Preferred new file:
+
+wp-content/themes/vava-living-theme-ar-v1/inc/questionnaire-admin-dashboard-v1.php
+
+Load it from functions.php immediately AFTER the active booking-questionnaire module is loaded.
+
+Keep the module admin-focused and isolated.
+Do not modify front-end booking behavior.
+
+Use the existing booking admin capability helper if available:
+vava_booking_admin_capability()
+
+If that helper is unavailable, use manage_options.
+
+==================================================
+STEP 2 — ADMIN MENU
+==================================================
+
+Add a submenu under the existing vava_booking post type menu:
+
+Parent slug:
+edit.php?post_type=vava_booking
+
+Menu labels:
+Arabic: الاستبيانات
+English/admin fallback: Questionnaires
+
+Suggested page slug:
+vava-questionnaires
+
+Do not create a top-level duplicate menu.
+
+==================================================
+STEP 3 — MANAGE QUESTIONNAIRES TAB
+==================================================
+
+Use the EXISTING canonical settings returned by:
+vava_booking_questionnaire_settings()
+
+Allow admin to manage the three questionnaires:
+- beginning
+- midpoint
+- impact
+
+Allow editing ONLY the existing safe configuration surface:
+- enabled state
+- AR/EN questionnaire title
+- AR/EN description
+- AR/EN group title
+- AR/EN question label
+- required flag
+- AR/EN existing answer option labels
+
+Preserve and do not allow edits to:
+- questionnaire type keys
+- field IDs
+- field types
+- internal option values
+- booking eligibility/display rules
+
+Save back into the existing Booking page meta:
+_vava_booking_questionnaires
+
+Use the current Booking page ID from vava_booking_page_id().
+
+Security:
+- capability check
+- nonce
+- sanitize every posted value
+- use the existing defaults/schema as the source of truth, not arbitrary posted field structures
+- preserve missing/unposted structural values from the canonical/default schema
+
+If the current booking-questionnaires file already contains reusable admin rendering or save helpers such as:
+vava_booking_questionnaire_render_admin_panel()
+vava_booking_questionnaire_save_settings()
+
+reuse them where safe instead of duplicating business logic.
+
+The final page must be understandable without opening the Booking page editor.
+
+==================================================
+STEP 4 — RESPONSES TAB
+==================================================
+
+Build a response browser from EXISTING vava_booking records only.
+
+A booking can contain:
+- one Beginning or Midpoint response in _vava_booking_questionnaire
+- an Impact response in _vava_booking_impact_questionnaire
+
+If available, reuse:
+vava_booking_questionnaire_all_booking_data( $booking_id )
+
+Display one row PER QUESTIONNAIRE RESPONSE, not merely one row per booking.
+
+Required columns:
+- Booking ID
+- Questionnaire type/title
+- Completed/submitted date
+- Customer name
+- Customer email
+- WhatsApp
+- Service/session
+- Appointment date
+- Appointment time
+- Booking status
+- Questionnaire language
+- View response
+
+Use booking metadata already present in the current system, including where available:
+_vava_booking_customer
+_vava_booking_service_title
+_vava_booking_date
+_vava_booking_time
+_vava_booking_status
+_vava_booking_language
+
+Response details:
+- show section/group title
+- question label
+- human-readable answer
+- use the SAVED questionnaire snapshot first
+- fallback to current settings only if snapshot is missing
+- for radio/checkbox values, translate stored internal option values using the snapshot option labels
+- escape all output
+
+Do not expose raw serialized meta.
+
+==================================================
+STEP 5 — FILTERS + PAGINATION
+==================================================
+
+Add filters for:
+- All / Beginning / Midpoint / Impact
+- search: booking ID, customer name, customer email
+- date from
+- date to
+
+Add pagination, recommended 20-25 response rows per page.
+
+Filtering is admin-only and must not mutate data.
+
+==================================================
+STEP 6 — EXCEL EXPORT
+==================================================
+
+Add a visible button:
+Download Excel / تنزيل Excel
+
+Use a secure admin-post action, for example:
+vava_questionnaires_export
+
+Requirements:
+- capability check
+- nonce check
+- export current sanitized filters when practical
+- no-cache/private headers
+- Content-Disposition attachment
+
+Primary format:
+.xlsx
+
+Do NOT add Composer or a third-party plugin.
+
+Preferred implementation:
+- use PHP ZipArchive when available
+- generate a minimal valid XLSX package using inline strings
+- keep all cell content as safe text
+- preserve UTF-8 Arabic text
+- prevent spreadsheet formula injection by never writing user values as formula cells
+
+If ZipArchive is not available:
+- fall back to UTF-8 BOM CSV
+- use a .csv extension
+- make it Excel-compatible
+- report the fallback clearly in the final report
+
+Export structure:
+One response per row.
+
+Metadata columns should include at minimum:
+- Booking ID
+- Questionnaire Type
+- Questionnaire Title
+- Completed At
+- Customer Name
+- Customer Email
+- WhatsApp
+- Service
+- Appointment Date
+- Appointment Time
+- Booking Status
+- Language
+
+Then include questionnaire answer columns using human-readable question labels.
+
+For mixed questionnaire types, either:
+A) use a union of all question columns in one sheet, leaving irrelevant cells blank, OR
+B) use separate sheets per questionnaire type if the implementation remains simple and robust.
+
+Do not make the export depend on current question text only. Prefer saved snapshot labels for historical submissions.
+
+==================================================
+STEP 7 — PRIVACY / SECURITY
+==================================================
+
+Questionnaire answers may contain sensitive personal and health data.
+
+Mandatory:
+- admin capability protection
+- nonce on save/export
+- no public REST endpoint
+- no nopriv action
+- no front-end exposure
+- no raw questionnaire answer logging
+- output escaping
+- input sanitization
+- no-cache headers on exports
+
+Do not add deletion/bulk deletion in this phase.
+
+==================================================
+STRICTLY DO NOT MODIFY
+==================================================
+
+Do NOT alter:
+- questionnaire eligibility rules
+- front-end booking steps
+- appointment scheduling
+- payment logic
+- Paymob
+- bank transfer
+- customer account/authentication
+- Paths/session architecture
+- Digital Products
+- PDF storage
+- PDF conversion
+- protected reader
+- HMAC page URLs
+- watermarking
+- Journal
+- Contact
+- Legal
+- Developer Hub
+- WordPress core
+
+Do not perform broad refactors.
+
+==================================================
+VALIDATION
+==================================================
+
+Run when available:
+
+php -l wp-content/themes/vava-living-theme-ar-v1/inc/questionnaire-admin-dashboard-v1.php
+php -l wp-content/themes/vava-living-theme-ar-v1/functions.php
+
+If booking-questionnaires-vava.php was modified, also run:
+php -l wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
+
+git diff --check
+git status --short
+
+Review:
+git diff -- wp-content/themes/vava-living-theme-ar-v1/functions.php wp-content/themes/vava-living-theme-ar-v1/inc/questionnaire-admin-dashboard-v1.php wp-content/themes/vava-living-theme-ar-v1/inc/booking-questionnaires-vava.php
+
+Functional checks, if the live environment reflects current edits:
+1. Dashboard > Bookings > Questionnaires opens without PHP warnings.
+2. Manage tab loads all 3 questionnaires.
+3. Change one harmless label in a test-safe way only if permitted, save, confirm persistence, then restore if necessary.
+4. Responses tab loads existing submissions without changing them.
+5. Beginning/Midpoint/Impact response detection works.
+6. View-response displays question labels + answers.
+7. Filters do not throw errors.
+8. Export downloads successfully.
+9. Open the exported workbook/validate ZIP structure if possible.
+10. Arabic text remains readable.
+11. Unauthorized access is denied.
+
+If there are no existing submissions on live, verify the empty-state UI and report that response/export content validation is pending real data.
+
+==================================================
+FINAL REPORT
+==================================================
+
+Return a compact report containing:
+
+1. Current branch/worktree state.
+2. Exact files added/modified.
+3. What was added to the Dashboard.
+4. How questionnaire settings are persisted.
+5. How Beginning/Midpoint/Impact responses are discovered.
+6. XLSX status: native XLSX or CSV fallback and why.
+7. php -l results.
+8. git diff --check result.
+9. Functional test results.
+10. Confirmation that booking/payment/PDF/reader flows were not changed.
+11. git status --short summary.
+12. End with exactly:
+
+No Git push was performed. Changes are ready for the user to push from the website.
