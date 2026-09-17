@@ -1,0 +1,14 @@
+Work on `/public_html`.
+
+Read and apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/questionnaire-individual-excel-exports`
+File: `VAVA-Questionnaire-Individual-Excel-Exports/README.md`
+
+Current live code may already contain the old questionnaire dashboard patch. Convert it to the final requested UX: no separate Questionnaires submenu; keep the existing Booking > Questionnaires tab and add 3 separate Excel download buttons, one for beginning, midpoint, and impact. Each export must contain only its questionnaire responses + booking/customer metadata, using saved snapshots for historical labels.
+
+Preserve existing data and all unrelated systems. Do not push, merge, create PRs, or modify remote `main`.
+
+Run PHP lint on changed PHP files if PHP CLI exists, plus `git diff --check`. Leave changes in `/public_html` for the user to push from Developer Hub.
+
+Return only: files changed, what was implemented, XLSX/CSV status, validation results, and anything needing manual visual verification.
