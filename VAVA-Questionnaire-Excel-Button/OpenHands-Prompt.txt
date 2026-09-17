@@ -1,0 +1,14 @@
+Work on `/public_html`.
+
+Apply this patch only:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/questionnaire-excel-button`
+File: `VAVA-Questionnaire-Excel-Button/README.md`
+
+Follow it against the CURRENT live code. Reuse the existing questionnaire export code already present from the previous patch.
+
+Do not touch unrelated systems. Do not push, merge, create PRs, or modify remote `main`.
+
+Run PHP lint on changed PHP files and `git diff --check`.
+
+Leave changes in `/public_html` for the user to push from Developer Hub.
