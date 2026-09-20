@@ -1,0 +1,8 @@
+Work on `/public_html`.
+
+Apply only:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/digital-products-template-fields-step1`
+File: `VAVA-Digital-Products-Template-Fields-Step1/README.md`
+
+Do only Step 1: add + save the five missing Digital Product admin fields. Do not change frontend rendering yet. Do not touch unrelated systems. Do not push. Run `git diff --check`.
