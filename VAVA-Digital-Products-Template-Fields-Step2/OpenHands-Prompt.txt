@@ -1,0 +1,12 @@
+Work on `/public_html`.
+
+Apply:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/digital-products-template-fields-step2`
+File: `VAVA-Digital-Products-Template-Fields-Step2/README.md`
+
+Do Step 2 only: render the saved Step 1 digital product fields in the existing frontend reader/template.
+
+Do not touch unrelated systems.
+Do not push.
+Run `git diff --check`.
