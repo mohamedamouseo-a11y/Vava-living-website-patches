@@ -1,0 +1,14 @@
+Work on `/public_html`.
+
+Apply:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/questionnaire-excel-answers-style`
+File: `VAVA-Questionnaire-Excel-Answers-Style/README.md`
+
+Fix only:
+1. style the 3 Excel buttons with VAVA olive theme instead of blue;
+2. make each type export ACTUAL saved user answers by matching snapshot field IDs to `data['answers'][field_id]`.
+
+Verify one real stored answer appears in the exported file.
+
+Do not touch unrelated code. Do not push. Run `git diff --check`.
