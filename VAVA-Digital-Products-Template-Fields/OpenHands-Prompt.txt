@@ -1,0 +1,14 @@
+Work on `/public_html`.
+
+Apply only:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/digital-products-template-fields`
+File: `VAVA-Digital-Products-Template-Fields/README.md`
+
+Goal: make future Digital Products added from the existing dashboard use the same full template as current products by adding editable category, question, inside-list, ideal-list and pages fields, preserving existing title/description/full description/price/PDF controls.
+
+Use the existing Selections data model and inline reader. Migrate the 6 current products safely without overwriting existing edits.
+
+Do not touch payments, PDF security/processing, reader security, customer accounts, bookings, questionnaires or unrelated code.
+
+Do not push. Run PHP lint if available + `git diff --check`. Leave changes in `/public_html`.
