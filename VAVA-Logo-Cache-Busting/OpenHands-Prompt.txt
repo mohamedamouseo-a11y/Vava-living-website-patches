@@ -1,0 +1,16 @@
+Work on `/public_html`.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/logo-cache-busting`
+File: `VAVA-Logo-Cache-Busting/README.md`
+
+Inspect only the logo-related functions/files referenced by current live usage.
+Apply the smallest safe change so every VAVA logo URL uses deterministic filemtime cache-busting.
+
+Do not re-scan the whole project.
+Do not change CSS/layout or unrelated systems.
+Do not push.
+Run only necessary validation + `git diff --check`.
+
+Return only changed files, root fix, and validation.
