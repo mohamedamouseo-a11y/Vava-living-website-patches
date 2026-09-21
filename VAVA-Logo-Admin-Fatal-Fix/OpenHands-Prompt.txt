@@ -1,0 +1,15 @@
+Work on `/public_html`.
+
+Apply:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/logo-cache-admin-fatal-fix`
+File: `VAVA-Logo-Admin-Fatal-Fix/README.md`
+
+Read the latest fatal log first. Inspect only the recent logo-cache files and fix the exact cause with the smallest change.
+
+Do not scan unrelated code.
+Do not update WordPress/plugins/themes.
+Do not push.
+Validate `update-core.php` + logo versioning + `git diff --check`.
+
+Return only: fatal cause, changed files, validation.
