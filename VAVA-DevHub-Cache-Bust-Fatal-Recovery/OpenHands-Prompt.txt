@@ -1,0 +1,22 @@
+Emergency recover the live Developer Hub critical error via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-cache-bust-fatal-recovery`
+File: `VAVA-DevHub-Cache-Bust-Fatal-Recovery/README.md`
+
+Use the CURRENT live minified PHP file.
+Replace ONLY the current server-git.js filemtime/VAVA_DEVHUB_PATH version expression with:
+VAVA_DEVHUB_VERSION . '-pushpending-20260921-1'
+
+Exact substring replacement only.
+No reformatting, no brace/method edits.
+Do not touch ajax_push_pending(), JS/CSS/runtime.
+Do not run any git operation.
+Do not push.
+If exact substring is absent, STOP.
+
+Return only:
+1. changed file
+2. whether critical-error page is gone
+3. structural validation
