@@ -1,0 +1,14 @@
+Work on the live Developer Hub via FTP.
+
+Apply:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-push-pending-ignore-excluded`
+File: `VAVA-DevHub-Push-Pending-Ignore-Excluded/README.md`
+
+Modify ONLY `ajax_push_pending()` in the current live PHP file.
+Change its two dirty-tree guards to use `safe_count` instead of total changes.
+Do not touch anything else.
+Do not execute git operations.
+Do not push.
+
+Return changed file + validation.
