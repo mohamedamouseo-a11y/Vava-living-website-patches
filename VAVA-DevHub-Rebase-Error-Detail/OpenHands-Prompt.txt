@@ -1,0 +1,21 @@
+Work on the CURRENT live Developer Hub via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-rebase-error-detail`
+File: `VAVA-DevHub-Rebase-Error-Detail/README.md`
+
+Modify ONLY the existing rebase-failure exception inside `ajax_push_pending()`.
+
+Preserve the current safe rebase logic and rebase --abort.
+Add the sanitized original `$rebase->get_error_message()` to the thrown error so the audit shows the real rebase failure reason.
+
+Critical:
+- exact substring replacement only in minified PHP
+- no reformatting or other code changes
+- preserve boot(), enqueue_assets(), diagnostics, JS/CSS/runtime
+- do not execute any git operation
+- do not push
+- stop if exact target is unsafe
+
+Return only changed file + validation.
