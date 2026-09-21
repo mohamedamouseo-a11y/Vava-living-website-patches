@@ -1,0 +1,15 @@
+Work on the live Developer Hub via FTP.
+
+Apply:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-server-git-cache-bust`
+File: `VAVA-DevHub-Server-Git-Cache-Bust/README.md`
+
+Fix only cache/versioning for `assets/server-git.js` so the newly deployed Prepare GitHub Sync button loads.
+
+Do not change git logic.
+Do not scan unrelated files.
+Do not push.
+Validate only as specified.
+
+Return changed files + validation.
