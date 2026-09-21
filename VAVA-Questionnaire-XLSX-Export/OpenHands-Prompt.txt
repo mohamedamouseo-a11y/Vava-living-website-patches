@@ -1,0 +1,20 @@
+Work on `/public_html`.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/questionnaire-xlsx-export`
+File: `VAVA-Questionnaire-XLSX-Export/README.md`
+
+Use the current live questionnaire export as source of truth.
+Change only the existing questionnaire download from CSV to a real Unicode-safe `.xlsx`.
+Preserve all current answer mapping/filtering/security logic.
+
+Do not scan unrelated systems.
+Do not add dependencies.
+Do not push.
+Run only the validation required by the README + `git diff --check`.
+
+Return only:
+1. changed files
+2. export format/result
+3. validation
