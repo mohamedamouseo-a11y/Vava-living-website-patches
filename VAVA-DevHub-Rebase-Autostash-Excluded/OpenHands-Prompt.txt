@@ -1,0 +1,24 @@
+Work on the CURRENT live Developer Hub via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-rebase-autostash-excluded`
+File: `VAVA-DevHub-Rebase-Autostash-Excluded/README.md`
+
+Modify ONLY the existing rebase command inside `ajax_push_pending()`:
+change:
+git rebase origin/<branch>
+to:
+git rebase --autostash origin/<branch>
+
+Exact substring replacement only in the current live minified PHP.
+Do not alter any other logic.
+Preserve safe_count guards, rebase --abort, diagnostics, cache-bust, boot(), JS/CSS/runtime.
+Do not execute any git operation during validation.
+Do not push.
+Stop if exact target is unsafe.
+
+Return only:
+1. changed file
+2. exact rebase command change
+3. validation
