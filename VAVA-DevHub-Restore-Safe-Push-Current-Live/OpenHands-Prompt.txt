@@ -1,0 +1,32 @@
+Work on the CURRENT live Developer Hub via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-restore-safe-push-current-live`
+File: `VAVA-DevHub-Restore-Safe-Push-Current-Live/README.md`
+
+Modify ONLY the exact `ajax_push_pending()` method in the CURRENT live PHP file.
+
+Restore:
+- safe_count guards
+- fetch origin branch
+- conditional rebase origin/branch
+- conflict detection + rebase --abort
+- final clean/ahead/behind guard
+- push
+
+PRESERVE the current diagnostic catch block and current enqueue_assets/cache-bust exactly.
+
+Critical:
+- minified PHP, exact method-span replacement only
+- no reformatting
+- boot() and enqueue_assets() byte-identical
+- do not touch JS/CSS/runtime/config/auth/remotes/theme
+- do not execute any git operation during validation
+- do not push
+- stop if exact method boundary is unsafe
+
+Return only:
+1. changed file
+2. restored method behavior
+3. validation
