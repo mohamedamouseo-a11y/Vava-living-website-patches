@@ -1,0 +1,14 @@
+Work on the live Developer Hub via FTP.
+
+Apply:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-show-git-errors`
+File: `VAVA-DevHub-Show-Git-Errors/README.md`
+
+Modify ONLY `assets/server-git.js`.
+Show existing sanitized `item.details` (especially `details.error`) inside Operation history.
+Do not change Git behavior, PHP, buttons, or API calls.
+Do not execute git operations.
+Do not push.
+
+Return changed file + validation.
