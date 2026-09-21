@@ -1,0 +1,19 @@
+Work on the live Developer Hub via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-safe-push-pending-rebase`
+File: `VAVA-DevHub-Safe-Push-Pending-Rebase/README.md`
+
+Current Hub is restored and working.
+Modify ONLY `ajax_push_pending()` in the current live PHP file.
+Do not touch boot(), JS, CSS, config, remotes, or website code.
+Do not execute any git mutation/network operation during validation.
+Do not push.
+
+Use exact method replacement only; if unsafe, stop.
+
+Return only:
+1. changed file
+2. method behavior
+3. validation
