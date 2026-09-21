@@ -1,0 +1,17 @@
+Recover the live Developer Hub fatal only.
+
+Apply:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-fatal-recovery`
+File: `VAVA-DevHub-Fatal-Recovery/README.md`
+
+Inspect only the Developer Hub files named there.
+Find the exact fatal and apply the smallest safe fix.
+Do not execute git operations.
+Do not touch theme/frontend.
+Do not push.
+
+Return only:
+1. fatal cause
+2. changed files
+3. validation
