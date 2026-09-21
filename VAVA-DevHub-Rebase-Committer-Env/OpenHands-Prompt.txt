@@ -1,0 +1,30 @@
+Work on the CURRENT live Developer Hub via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-rebase-committer-env`
+File: `VAVA-DevHub-Rebase-Committer-Env/README.md`
+
+Modify ONLY the existing rebase run_git() call inside ajax_push_pending().
+
+Keep:
+git rebase --autostash origin/<branch>
+
+Change ONLY its options from:
+array('timeout' => 180)
+
+to:
+array('author' => true, 'timeout' => 180)
+
+Do NOT use git config.
+Do NOT change runtime.php.
+Do NOT touch any other logic/file.
+Exact substring replacement only in current live minified PHP.
+Do not execute git operations.
+Do not push.
+Stop if exact target is unsafe.
+
+Return only:
+1. changed file
+2. exact options change
+3. validation
