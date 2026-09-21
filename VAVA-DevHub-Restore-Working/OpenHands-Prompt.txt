@@ -1,0 +1,13 @@
+Recover Developer Hub only.
+
+Apply:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-restore-working`
+File: `VAVA-DevHub-Restore-Working/README.md`
+
+Revert only the recent Prepare GitHub Sync + server-git.js cache-bust edits using GitHub main as the known-good reference for those sections.
+Do not overwrite unrelated newer live changes.
+Do not run git operations.
+Do not push.
+
+Return only changed files + validation.
