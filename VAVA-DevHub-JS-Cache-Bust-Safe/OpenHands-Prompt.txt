@@ -1,0 +1,19 @@
+Work on the CURRENT live Developer Hub via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-js-cache-bust-safe`
+File: `VAVA-DevHub-JS-Cache-Bust-Safe/README.md`
+
+Modify ONLY the script version argument in `enqueue_assets()` using exact substring replacement.
+Use filemtime for `assets/server-git.js` with fallback to `VAVA_DEVHUB_VERSION`.
+
+CRITICAL:
+- minified PHP: no reformatting, no brace/method edits
+- boot() must remain byte-identical
+- do not touch JS/CSS/git behavior
+- do not run git operations
+- do not push
+- stop if exact match is unsafe
+
+Return only changed file + validation.
