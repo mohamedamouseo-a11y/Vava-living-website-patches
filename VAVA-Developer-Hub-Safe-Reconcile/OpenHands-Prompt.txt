@@ -1,0 +1,18 @@
+Work on the live site via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/devhub-safe-reconcile`
+File: `VAVA-Developer-Hub-Safe-Reconcile/README.md`
+
+Implement only the new Developer Hub "Prepare GitHub Sync" action described there.
+Use the Hub's existing proc_open git runtime.
+Do not scan unrelated project code.
+Do not push or change git config/remotes.
+
+Validate only what the README requires.
+
+Return only:
+1. changed Developer Hub files
+2. new action behavior
+3. validation
