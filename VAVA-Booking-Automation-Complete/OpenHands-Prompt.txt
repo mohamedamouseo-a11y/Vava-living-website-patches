@@ -1,0 +1,36 @@
+Work on the CURRENT live VAVA theme via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/vava-booking-automation-complete`
+File: `VAVA-Booking-Automation-Complete/README.md`
+
+Implement ALL remaining booking automation in ONE pass:
+- Google Meet settings + secure OAuth
+- Generate Google Meet from booking details
+- automatic Meet generation for eligible confirmed/paid future session bookings
+- automatic resend of existing booking-details email once Meet link is ready
+- 24-hour meeting reminder with idempotent retry
+- bounded hourly recovery worker
+- dashboard meeting/email/reminder status
+- preserve manual meeting-link fallback
+
+IMPORTANT:
+- CURRENT LIVE files are source of truth.
+- live already contains manual meeting-link Step 1 and SMTP Phase 1; preserve both.
+- actual Google/SMTP credentials are not available yet, so code must deploy safely and remain waiting until configured.
+- no real OAuth, Calendar event, or email during validation.
+
+Allowed:
+1. create `wp-content/themes/vava-living-theme-ar-v1/inc/google-meet-vava.php`
+2. modify `wp-content/themes/vava-living-theme-ar-v1/functions.php` only to require it
+3. targeted changes to CURRENT live `wp-content/themes/vava-living-theme-ar-v1/inc/booking-vava-safe-v4r10.php`
+
+Do NOT touch legacy booking-vava.php, payment logic, Paymob, bank transfer, slot logic, refunds, questionnaires, products, customer accounts, Developer Hub, or unrelated frontend.
+No external packages.
+Do NOT push.
+
+Return only:
+1. changed/created files
+2. implemented behavior
+3. exact validation results, including exact output for any non-zero command.
