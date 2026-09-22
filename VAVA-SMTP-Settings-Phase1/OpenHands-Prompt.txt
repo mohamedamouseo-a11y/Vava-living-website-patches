@@ -1,0 +1,28 @@
+Work on the CURRENT live VAVA theme via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/vava-smtp-settings-phase1`
+File: `VAVA-SMTP-Settings-Phase1/README.md`
+
+Implement ONLY Phase 1:
+- VAVA SMTP settings page under VAVA Bookings
+- fields: enabled, host, port, encryption, username, password, from email, from name
+- secure password behavior: never display saved password; blank keeps old password
+- configure existing WordPress wp_mail through phpmailer_init
+- add Test Email action using wp_mail
+- concise success/error notices
+
+Files allowed:
+1. create `wp-content/themes/vava-living-theme-ar-v1/inc/mail-settings-vava.php`
+2. modify `wp-content/themes/vava-living-theme-ar-v1/functions.php` only to require that file
+
+Do NOT touch booking logic, meeting feature, Paymob, questionnaires, Developer Hub, frontend, Google APIs, or reminders.
+Do NOT send a real email during validation.
+Do NOT push.
+
+Use CURRENT live files as source of truth.
+Return only:
+1. changed/created files
+2. implemented behavior
+3. validation
