@@ -1,0 +1,37 @@
+Work on the CURRENT live VAVA theme via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/google-meet-generate-phase2`
+File: `VAVA-Google-Meet-Generate-Phase2/README.md`
+
+Implement ONLY Phase 2:
+- Google Meet settings + secure OAuth connection
+- Google Calendar token refresh
+- Generate Google Meet directly from the existing booking meeting card
+- save generated Meet URL into the existing Step 1 meeting meta
+- duplicate-safe: repeated clicks must never create duplicate Calendar events
+- preserve manual Meeting Link fallback
+- Generate must NOT send email yet
+
+Allowed files only:
+1. create `wp-content/themes/vava-living-theme-ar-v1/inc/google-meet-vava.php`
+2. modify `wp-content/themes/vava-living-theme-ar-v1/functions.php` only to require it
+3. targeted changes to CURRENT live `wp-content/themes/vava-living-theme-ar-v1/inc/booking-vava-safe-v4r10.php` meeting card/action labels only
+
+Important:
+- CURRENT live file is source of truth; it already contains Step 1 manual meeting feature.
+- do not overwrite/regress that feature
+- no real OAuth or Calendar event during validation
+- no SMTP changes
+- no auto-generate after payment
+- no auto-email
+- no reminders/cron
+- no Paymob/questionnaire/refund/customer-account changes
+- no external libraries
+- do not push
+
+Return only:
+1. changed/created files
+2. implemented behavior
+3. validation
