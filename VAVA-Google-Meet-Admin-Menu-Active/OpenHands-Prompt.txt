@@ -1,0 +1,25 @@
+Work on the CURRENT live VAVA theme via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `fix/google-meet-admin-menu-active`
+File: `VAVA-Google-Meet-Admin-Menu-Active/README.md`
+
+Fix ONLY the WordPress admin sidebar active state for the Google Meet settings page.
+
+Current issue:
+- Google Meet settings page opens correctly
+- but the "Google Meet" submenu under VAVA حجوزات is not highlighted/selected
+
+Requirements:
+- use CURRENT live `wp-content/themes/vava-living-theme-ar-v1/inc/google-meet-vava.php` as source of truth
+- make "Google Meet" selected only when that settings page is open
+- preserve all other submenu active states
+- do not touch OAuth, Meet generation, SMTP, reminders, bookings, payments, or any other behavior
+- change only `inc/google-meet-vava.php`
+- do not push
+
+Return only:
+1. changed file
+2. fix implemented
+3. validation
