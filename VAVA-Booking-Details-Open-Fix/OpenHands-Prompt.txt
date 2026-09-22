@@ -1,0 +1,29 @@
+Work on the CURRENT live VAVA theme via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `fix/booking-details-open`
+File: `VAVA-Booking-Details-Open-Fix/README.md`
+
+Bug:
+Clicking a booking number such as #179 on VAVA حجوزات does nothing.
+
+Diagnose CURRENT LIVE first, then fix the actual root cause.
+
+Required result:
+- booking number opens the canonical booking details page
+- "عرض التفاصيل" opens the same page
+- normal anchor navigation works without relying on JS
+- preserve current Google Meet automation, meeting card, SMTP, payments and all booking behavior
+
+Prefer canonical URL:
+`admin.php?page=vava-booking-details&booking={ID}`
+
+Modify the minimum necessary live file(s). Do not touch unrelated logic.
+Do not push.
+
+Return only:
+1. root cause
+2. changed file(s)
+3. fix
+4. exact validation results, including exact output for any non-zero command.
