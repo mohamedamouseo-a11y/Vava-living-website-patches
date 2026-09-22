@@ -1,0 +1,37 @@
+Work on the CURRENT live VAVA theme via FTP.
+
+Apply exactly:
+Repo: `mohamedamouseo-a11y/Vava-living-website-patches`
+Branch: `feature/booking-manual-meeting-link-step1`
+File: `VAVA-Booking-Manual-Meeting-Link-Step1/README.md`
+
+Implement ONLY Step 1 in the CURRENT live active file:
+`wp-content/themes/vava-living-theme-ar-v1/inc/booking-vava-safe-v4r10.php`
+
+Required:
+- manual provider: Google Meet / Zoom / manual
+- HTTPS meeting URL validation
+- meeting card in booking details
+- Save only + Save & Send to Customer
+- persist meeting meta on the booking
+- reuse existing forced booking-details email
+- add meeting section to existing email only when URL exists
+- show questionnaire received status only if existing questionnaire data exists
+- add meeting_saved / meeting_sent action log labels
+- show small meeting status inside existing appointment column
+
+Do NOT:
+- edit legacy booking-vava.php
+- add Google/Zoom APIs
+- add reminders/cron
+- change payment, booking, slot, questionnaire, refund, or product-order behavior
+- add new DB tables
+- send a real email during validation
+- push
+
+Use current live file as source of truth.
+Keep scope to this one PHP file.
+Return only:
+1. changed file
+2. implemented behavior
+3. validation
